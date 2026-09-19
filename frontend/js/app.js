@@ -241,7 +241,7 @@ function showAuthHandshake(roleKey, onComplete) {
         spinner.style.display = 'none';
         
         let scopeText = 'Assigned Battalion Cohort (104-CRPF)';
-        if (roleKey === 'commander') scopeText = 'Unit Aggregated Readiness (k >= 5)';
+        if (roleKey === 'commander') scopeText = 'Unit Aggregated Readiness';
         if (roleKey === 'admin') scopeText = 'Cryptographic Audit & IDS Operations';
 
         statusText.textContent = `Access Granted • Scope: ${scopeText}`;
@@ -688,7 +688,7 @@ window.loadCommanderData = async function(battalionCode = '104-CRPF') {
         suppressionAlert.classList.add('visible');
         document.getElementById('cmd-suppression-text').textContent = data.message;
       }
-      showToast(`PRIVACY ENFORCEMENT: Aggregated metrics suppressed for ${battalionCode} (k < 5)`);
+      showToast(`PRIVACY ENFORCEMENT: Aggregated metrics suppressed for ${battalionCode} (Minimum Cohort Threshold)`);
     } else {
       metricsCard.style.display = 'block';
 
@@ -697,7 +697,7 @@ window.loadCommanderData = async function(battalionCode = '104-CRPF') {
       document.getElementById('cmd-stress-val').textContent = `${m.cohort_stress_index}/100`;
       document.getElementById('cmd-leave-deficit-val').textContent = `${m.personnel_leave_deficit_rate_pct}%`;
       document.getElementById('cmd-fatigue-val').textContent = `${m.circadian_fatigue_rate_pct}%`;
-      document.getElementById('cmd-cohort-size').textContent = `Cohort: N=${data.cohort_size} (k>=5 Satisfied)`;
+      document.getElementById('cmd-cohort-size').textContent = `Cohort Size: N=${data.cohort_size} Personnel`;
 
       const dirList = document.getElementById('cmd-directives-list');
       dirList.innerHTML = '';
