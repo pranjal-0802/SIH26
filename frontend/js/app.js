@@ -94,7 +94,7 @@ function updateLiveClock() {
   } else {
     clockEl.textContent = `${istTimeStr} IST • 104-CRPF (KUPWARA SECTOR)`;
     if (quoteEl) {
-      quoteEl.innerHTML = '<strong>Mineral Philosophy:</strong> Formed under sustained pressure, structurally layered, and defined by clarity rather than opacity.';
+      quoteEl.innerHTML = '<strong>Operational Notice:</strong> You are accessing real-time unit telemetry. All queries and interactions are cryptographically verified.';
     }
   }
 }
@@ -398,7 +398,7 @@ async function loadPersonnelHistory() {
 // ----------------------------------------------------
 async function loadWelfareAlerts() {
   const container = document.getElementById('welfare-alerts-body');
-  container.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2rem;">Evaluating game-theoretic alert ranking & case statuses...</td></tr>';
+  container.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading prioritized alert queue and case statuses...</td></tr>';
 
   try {
     const res = await fetch(`${API_BASE}/welfare/alerts?target_battalion=104-CRPF`, {
@@ -449,7 +449,7 @@ async function loadWelfareAlerts() {
         document.getElementById('hero-utility').textContent = '+0.000';
         document.getElementById('hero-distress').textContent = '0%';
         document.getElementById('hero-urgency').textContent = 'MONITORING';
-        document.getElementById('hero-rationale-text').textContent = 'All battalion alert cases resolved or below actionable utility threshold. Cohort equilibrium nominal.';
+        document.getElementById('hero-rationale-text').textContent = 'You have resolved all battalion alert cases or they remain below the actionable utility threshold. Cohort equilibrium is nominal.';
         const heroBadge = document.getElementById('hero-archetype-badge');
         if (heroBadge) {
           heroBadge.className = 'badge badge-emerald';
@@ -459,7 +459,7 @@ async function loadWelfareAlerts() {
 
       container.innerHTML = '';
       if (cachedAlerts.length === 0) {
-        container.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2rem;">No active alerts in current cohort allocation. All cases nominal or resolved.</td></tr>';
+        container.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2rem;">You have no active alerts in your current cohort allocation. All cases are nominal or resolved.</td></tr>';
         return;
       }
 
@@ -790,7 +790,7 @@ async function loadIdsAlerts() {
       container.innerHTML = '';
 
       if (data.alerts.length === 0) {
-        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.82rem; padding: 1rem 0;">Zero unauthorized intrusion attempts recorded. Perimeter baseline nominal.</div>';
+        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.82rem; padding: 1rem 0;">You have zero unauthorized intrusion attempts recorded. Perimeter baseline is nominal.</div>';
         return;
       }
 

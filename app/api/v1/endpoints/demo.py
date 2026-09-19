@@ -24,7 +24,7 @@ _TAMPERED_SEQUENCE_NO = None
 @router.get("/personas", dependencies=[Depends(require_demo_mode)])
 def get_demo_personas():
     """
-    Returns pre-scripted demo personas for live jury presentation.
+    Returns pre-scripted demo personas for live demonstration.
     Gated strictly behind DEMO_MODE.
     """
     return {
