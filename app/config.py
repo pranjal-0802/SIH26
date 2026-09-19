@@ -27,7 +27,7 @@ class Settings:
     APP_ENV: str = os.getenv("APP_ENV", "production").lower()
     DEMO_MODE: bool = os.getenv("DEMO_MODE", "false").lower() in ("true", "1", "yes")
     
-    # Cryptographic Secrets — REQUIRED (Fail fast if missing, zero hardcoded fallback in repo)
+    # Cryptographic Secrets: REQUIRED (Fail fast if missing, zero hardcoded fallback in repo)
     SECRET_KEY: str = _get_required_secret("SECRET_KEY")
     AES_MASTER_KEY_HEX: str = _get_required_secret("AES_MASTER_KEY_HEX")
     AUDIT_HMAC_KEY_HEX: str = _get_required_secret("AUDIT_HMAC_KEY_HEX")

@@ -8,11 +8,11 @@
 
 ## 1. The Opening Hook (1 Minute)
 
-> **"Respected Judges, our platform is named PRISMARINE — like the mineral: formed under sustained pressure, structurally layered, and defined by clarity rather than opacity.**
+> **"Respected Judges, our platform is named PRISMARINE - like the mineral: formed under sustained pressure, structurally layered, and defined by clarity rather than opacity.**
 >
-> **Personnel serving in the CRPF, BSF, ITBP, and Armed Forces operate under relentless operational pressure: remote postings, prolonged family separation, and irregular night sentry duties. Yet commercial HR wellness tools fail in the armed forces. Why? Because of FEAR: Fear that reporting fatigue will get a soldier's service weapon withdrawn, stall promotions, or expose them to commander surveillance.**
+> In uniformed services, personnel do not hide distress because they want to suffer in silence: they hide it because of **career stigma anxiety** - the realistic fear that admitting fatigue leads to immediate service weapon withdrawal, reassignment away from their operational battalion, or a stalled promotion.
 >
-> **Prismarine is engineered from the ground up under that exact same philosophy: built like a defense system, not an HR tool. Security and privacy are enforced in transparent, auditable layers — column-level AES-256-GCM encryption, field-level RBAC, game-theoretic alert prioritization with crisis overrides, real-time access-pattern IDS, and an HMAC-SHA256 tamper-evident audit trail backed by external trust anchoring."**
+> **Prismarine is engineered from the ground up under that exact same philosophy: built like a defense system, not an HR tool. Security and privacy are enforced in transparent, auditable layers: column-level AES-256-GCM encryption, field-level RBAC, game-theoretic alert prioritization with crisis overrides, real-time access-pattern IDS, and an HMAC-SHA256 tamper-evident audit trail backed by external trust anchoring."**
 
 ---
 
@@ -51,7 +51,7 @@
 | Step | Action on UI | Talking Point for Judges |
 | :--- | :--- | :--- |
 | **Step 1** | Open `http://localhost:8000` | "This is Prismarine's unified operational console, starting with our responsive Soldier PWA." |
-| **Step 2** | Submit check-in for `PX-7821` | "Constable Rajesh Kumar logs his daily rest and fatigue. Notice the real-time AES-256-GCM packing—his real name never touches the wellness table." |
+| **Step 2** | Submit check-in for `PX-7821` | "Constable Rajesh Kumar logs his daily rest and fatigue. Notice the real-time AES-256-GCM packing: his real name never touches the wellness table." |
 | **Step 3** | Switch to **Welfare Officer Console** | "Sub-Inspector Anita Sharma reviews Battalion 104-CRPF. Notice the queue: Rajesh Kumar is prioritized at Rank #1 (+3.21 Utility) due to 210 days forward deployment and 2 denied leaves." |
 | **Step 4** | Point to `PX-1290` (Sunil Yadav) | "Notice Sunil Yadav: tagged as **STIGMA-MASKED**. He claimed 0 distress, but our game-theoretic engine detected his 195 deployment days and 3 denied leaves, boosting his priority!" |
 | **Step 5** | Click **Explain** on `PX-7821` | "Transparent AI: 42% Leave Deficit, 28% Sleep Deprivation. Directs a 14-day R&R leave and night sentry rotation." |
@@ -74,7 +74,7 @@ When judges probe technical edge cases, proactively present these answers:
    - *Presenter Response*: "By design, Prismarine implements **Graceful Privacy Degradation rather than a hard stop**. In high-tempo defense operations, completely blinding a commander with an HTTP 429/403 during an active crisis is a major life-safety hazard. Instead, when the rolling 24h budget ($\epsilon=5.0$) is spent, the engine automatically halves $\epsilon$, doubling Laplace noise variance, and tags the response as `BUDGET_EXHAUSTED_EXTRA_NOISE`. High-level macro distributions remain visible, but mathematical reconstruction fidelity is actively destroyed. If an agency strictly mandates query refusal, setting `DP_STRICT_ENFORCEMENT=true` enables a hard cutoff."
 
 2. **"Can't an insider with server access rewrite your local external anchor file?"**
-   - *Presenter Response*: "Yes—and that is why our architecture explicitly defines trust boundaries: **an external anchor only provides true defense-grade protection once it is written to a system the application host itself cannot modify**. For our standalone demonstration, we enforce an append-only ledger (`.jsonl`) so full-chain rewrites are detectable by diffing historical snapshots. For production defense deployments, the append stream forwards out-of-band to an immutable WORM repository outside the app host's trust boundary: an air-gapped defense syslog enclave, a Hardware Security Module (HSM), or an AWS S3 Object Lock bucket in Compliance Mode."
+   - *Presenter Response*: "Yes: and that is why our architecture explicitly defines trust boundaries: **an external anchor only provides true defense-grade protection once it is written to a system the application host itself cannot modify**. For our standalone demonstration, we enforce an append-only ledger (`.jsonl`) so full-chain rewrites are detectable by diffing historical snapshots. For production defense deployments, the append stream forwards out-of-band to an immutable WORM repository outside the app host's trust boundary: an air-gapped defense syslog enclave, a Hardware Security Module (HSM), or an AWS S3 Object Lock bucket in Compliance Mode."
 
 3. **"How does the Access-Pattern IDS scale across distributed nodes?"**
    - *Presenter Response*: "Our IDS scoring engine runs standalone in-memory for the demo. In a cluster deployment, the sliding window state moves into a distributed Redis/Valkey cache with zero changes to our cross-battalion and velocity detection algorithms."

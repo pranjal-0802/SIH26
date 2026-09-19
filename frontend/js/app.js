@@ -41,16 +41,43 @@ const PERSONAS = {
 let currentRole = 'personnel';
 let authTokens = {};
 let cachedAlerts = [];
+let authAnimationTimeout = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
   setupSliders();
+  startLiveClock();
   await preAuthenticateAllRoles();
-  switchRole('personnel');
+  switchRole('personnel', true);
   
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/static/sw.js').catch(() => {});
   }
 });
+
+function startLiveClock() {
+  function updateClock() {
+    const clockEl = document.getElementById('live-tactical-clock');
+    const quoteEl = document.getElementById('narrative-quote-box');
+    if (!clockEl) return;
+    
+    const now = new Date();
+    if (currentRole === 'personnel') {
+      const timeStr = now.toLocaleTimeString('en-IN', { hour12: false });
+      clockEl.textContent = `${timeStr} • CONFIDENTIAL CLIENT ENCLAVE`;
+      if (quoteEl) {
+        quoteEl.innerHTML = 'Your responses are confidential. Your commanding officer cannot see this screen or your individual entries.';
+      }
+    } else {
+      const istStr = now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour12: false });
+      clockEl.textContent = `${istStr} IST • 104-CRPF (KUPWARA SECTOR)`;
+      if (quoteEl) {
+        quoteEl.innerHTML = '<strong>Mineral Philosophy:</strong> Formed under sustained pressure, structurally layered, and defined by clarity rather than opacity.';
+      }
+    }
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+}
 
 function setupSliders() {
   const sliders = [
@@ -102,32 +129,157 @@ function getAuthHeader(roleKey) {
   return headers;
 }
 
-window.switchRole = async function(roleKey) {
-  currentRole = roleKey;
-  
-  // Update Segmented Control Buttons
-  document.querySelectorAll('.segment-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.role === roleKey);
-  });
-  
-  // Transition Workspace Section Smoothly
-  document.querySelectorAll('.view-section').forEach(view => {
-    if (view.id === `view-${roleKey}`) {
-      view.classList.add('active');
-    } else {
-      view.classList.remove('active');
-    }
-  });
+function showAuthHandshake(roleKey, onComplete) {
+  const overlay = document.getElementById('auth-overlay');
+  const persona = PERSONAS[roleKey];
+  if (!overlay || !persona) {
+    onComplete();
+    return;
+  }
+
+  if (authAnimationTimeout) clearTimeout(authAnimationTimeout);
+
+  const userDisplay = document.getElementById('auth-user-display');
+  const unitDisplay = document.getElementById('auth-unit-display');
+  const roleDesc = document.getElementById('auth-role-desc');
+  const totpContainer = document.getElementById('auth-totp-container');
+  const statusBar = document.getElementById('auth-status-bar');
+  const statusText = document.getElementById('auth-status-text');
+  const spinner = document.getElementById('auth-spinner');
+
+  userDisplay.textContent = persona.username;
+  unitDisplay.textContent = persona.unit;
+
+  statusBar.className = 'auth-status-bar';
+  spinner.style.display = 'block';
+  statusText.textContent = 'Verifying cryptographic scope entitlements...';
+
+  // Allow clicking anywhere to immediately skip if needed
+  overlay.onclick = () => {
+    overlay.classList.remove('active');
+    overlay.onclick = null;
+    if (authAnimationTimeout) clearTimeout(authAnimationTimeout);
+    onComplete();
+  };
+
+  overlay.classList.add('active');
 
   if (roleKey === 'personnel') {
-    loadPersonnelHistory();
-  } else if (roleKey === 'welfare') {
-    loadWelfareAlerts();
-  } else if (roleKey === 'commander') {
-    loadCommanderData('104-CRPF');
-  } else if (roleKey === 'admin') {
-    loadAuditChain();
-    loadIdsAlerts();
+    roleDesc.textContent = 'Confidential Soldier Enclave (Single-Sign-On)';
+    totpContainer.style.display = 'none';
+
+    authAnimationTimeout = setTimeout(() => {
+      statusBar.className = 'auth-status-bar success';
+      spinner.style.display = 'none';
+      statusText.textContent = 'Access Granted • Scope: Confidential Self-Report Only';
+
+      authAnimationTimeout = setTimeout(() => {
+        overlay.classList.remove('active');
+        overlay.onclick = null;
+        onComplete();
+      }, 350);
+    }, 450);
+  } else {
+    roleDesc.textContent = 'Privileged Operational Command (Step-Up TOTP Required)';
+    totpContainer.style.display = 'flex';
+
+    for (let i = 1; i <= 6; i++) {
+      const box = document.getElementById(`totp-d${i}`);
+      if (box) {
+        box.textContent = '-';
+        box.classList.remove('filled');
+      }
+    }
+
+    const totpDigits = (persona.totp_code || '123456').split('');
+    let digitIdx = 0;
+
+    function stepDigit() {
+      if (digitIdx < totpDigits.length) {
+        const box = document.getElementById(`totp-d${digitIdx + 1}`);
+        if (box) {
+          box.textContent = totpDigits[digitIdx];
+          box.classList.add('filled');
+        }
+        digitIdx++;
+        authAnimationTimeout = setTimeout(stepDigit, 80);
+      } else {
+        statusBar.className = 'auth-status-bar success';
+        spinner.style.display = 'none';
+        
+        let scopeText = 'Assigned Battalion Cohort (104-CRPF)';
+        if (roleKey === 'commander') scopeText = 'Unit Aggregated Readiness (k >= 5)';
+        if (roleKey === 'admin') scopeText = 'Cryptographic Audit & IDS Operations';
+
+        statusText.textContent = `Access Granted • Scope: ${scopeText}`;
+
+        authAnimationTimeout = setTimeout(() => {
+          overlay.classList.remove('active');
+          overlay.onclick = null;
+          onComplete();
+        }, 400);
+      }
+    }
+
+    authAnimationTimeout = setTimeout(stepDigit, 220);
+  }
+}
+
+window.switchRole = async function(roleKey, skipAuth = false) {
+  if (roleKey === currentRole && !skipAuth) return;
+
+  function finishSwitch() {
+    currentRole = roleKey;
+    
+    // Update Segmented Control Buttons
+    document.querySelectorAll('.segment-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.role === roleKey);
+    });
+    
+    // Transition Workspace Section Smoothly
+    document.querySelectorAll('.view-section').forEach(view => {
+      if (view.id === `view-${roleKey}`) {
+        view.classList.add('active');
+      } else {
+        view.classList.remove('active');
+      }
+    });
+
+    // Update Live Clock / Narrative
+    const clockEl = document.getElementById('live-tactical-clock');
+    const quoteEl = document.getElementById('narrative-quote-box');
+    if (clockEl) {
+      const now = new Date();
+      if (roleKey === 'personnel') {
+        clockEl.textContent = `${now.toLocaleTimeString('en-IN', { hour12: false })} • CONFIDENTIAL CLIENT ENCLAVE`;
+        if (quoteEl) {
+          quoteEl.innerHTML = 'Your responses are confidential. Your commanding officer cannot see this screen or your individual entries.';
+        }
+      } else {
+        const istStr = now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour12: false });
+        clockEl.textContent = `${istStr} IST • 104-CRPF (KUPWARA SECTOR)`;
+        if (quoteEl) {
+          quoteEl.innerHTML = '<strong>Mineral Philosophy:</strong> Formed under sustained pressure, structurally layered, and defined by clarity rather than opacity.';
+        }
+      }
+    }
+
+    if (roleKey === 'personnel') {
+      loadPersonnelHistory();
+    } else if (roleKey === 'welfare') {
+      loadWelfareAlerts();
+    } else if (roleKey === 'commander') {
+      loadCommanderData('104-CRPF');
+    } else if (roleKey === 'admin') {
+      loadAuditChain();
+      loadIdsAlerts();
+    }
+  }
+
+  if (skipAuth) {
+    finishSwitch();
+  } else {
+    showAuthHandshake(roleKey, finishSwitch);
   }
 };
 
@@ -258,22 +410,40 @@ async function loadWelfareAlerts() {
           `High operational hardship detected (${topAlert.operational_hardship_score || 'Elevated'}) requiring timely welfare officer outreach.`;
         
         const heroBadge = document.getElementById('hero-archetype-badge');
-        if (topAlert.signal_archetype === 'CRISIS_IMMEDIATE_OVERRIDE') {
+        const heroCard = document.getElementById('welfare-hero-card');
+        if (heroCard) heroCard.classList.remove('is-crisis', 'is-stigma-masked');
+
+        if (topAlert.signal_archetype === 'CRISIS_IMMEDIATE_OVERRIDE' || topAlert.is_crisis) {
+          if (heroCard) heroCard.classList.add('is-crisis');
           heroBadge.className = 'badge badge-crimson';
           heroBadge.textContent = 'CRISIS OVERRIDE';
+          document.getElementById('hero-distress').style.color = '#f87171';
+          document.getElementById('hero-urgency').style.color = '#fca5a5';
         } else if (topAlert.signal_archetype === 'STIGMA_MASKED_DISTRESS') {
+          if (heroCard) heroCard.classList.add('is-stigma-masked');
           heroBadge.className = 'badge badge-amber';
           heroBadge.textContent = 'STIGMA-MASKED (UNDER-REPORTING)';
+          document.getElementById('hero-distress').style.color = '#fbbf24';
+          document.getElementById('hero-urgency').style.color = '#fde68a';
         } else {
-          heroBadge.className = 'badge badge-crimson';
-          heroBadge.textContent = 'AUTHENTIC HIGH DISTRESS';
+          heroBadge.className = 'badge badge-neutral';
+          heroBadge.textContent = 'HIGH OPERATIONAL PRIORITY';
+          document.getElementById('hero-distress').style.color = '#38bdf8';
+          document.getElementById('hero-urgency').style.color = '#cbd5e1';
         }
       }
 
       container.innerHTML = '';
       cachedAlerts.forEach((alert, idx) => {
         const tr = document.createElement('tr');
-        if (idx === 0) tr.classList.add('row-hero');
+        if (idx === 0) {
+          tr.classList.add('row-hero');
+          if (alert.signal_archetype === 'CRISIS_IMMEDIATE_OVERRIDE' || alert.is_crisis) {
+            tr.classList.add('is-crisis');
+          } else if (alert.signal_archetype === 'STIGMA_MASKED_DISTRESS') {
+            tr.classList.add('is-stigma-masked');
+          }
+        }
         
         let archetypeBadge = 'badge-neutral';
         let archetypeLabel = alert.signal_archetype;
@@ -281,7 +451,7 @@ async function loadWelfareAlerts() {
           archetypeBadge = 'badge-crimson';
           archetypeLabel = 'CRISIS OVERRIDE';
         } else if (alert.signal_archetype === 'AUTHENTIC_HIGH_DISTRESS') {
-          archetypeBadge = 'badge-crimson';
+          archetypeBadge = 'badge-amber';
           archetypeLabel = 'AUTHENTIC DISTRESS';
         } else if (alert.signal_archetype === 'STIGMA_MASKED_DISTRESS') {
           archetypeBadge = 'badge-amber';
@@ -433,6 +603,12 @@ window.executeBreakGlass = async function() {
 window.loadCommanderData = async function(battalionCode) {
   const badge = document.getElementById('cmd-active-battalion');
   if (badge) badge.textContent = battalionCode;
+
+  // Update cohort test buttons active state
+  document.querySelectorAll('.btn-cohort-query').forEach(btn => btn.classList.remove('active'));
+  if (battalionCode === '104-CRPF') document.getElementById('cmd-btn-104')?.classList.add('active');
+  if (battalionCode === '42-BSF') document.getElementById('cmd-btn-42')?.classList.add('active');
+  if (battalionCode === '88-ITBP') document.getElementById('cmd-btn-88')?.classList.add('active');
 
   try {
     const res = await fetch(`${API_BASE}/commander/cohort-readiness?target_battalion=${battalionCode}`, {

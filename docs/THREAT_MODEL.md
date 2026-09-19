@@ -5,7 +5,7 @@
 **Framework:** STRIDE + Attack-Tree Analysis  
 **Security Posture:** Zero-Trust, Defense-in-Depth, Purpose-Limited Access  
 
-> *"Prismarine — like the mineral: formed under sustained pressure, structurally layered, and defined by clarity rather than opacity."*
+> *"Prismarine - like the mineral: formed under sustained pressure, structurally layered, and defined by clarity rather than opacity."*
 
 ---
 
@@ -57,7 +57,7 @@ Adversary Hierarchy
 
 ## 4. Attack Trees
 
-### Attack Tree 1: Insider Threat — Snooping on Subordinate Mental Health & IDOR Probes
+### Attack Tree 1: Insider Threat: Snooping on Subordinate Mental Health & IDOR Probes
 
 ```
 Goal: Identify Individual Personnel Mental Health / Access Unauthorized Units

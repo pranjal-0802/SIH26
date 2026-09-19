@@ -3,13 +3,13 @@
 **Tailored for:** Central Armed Police Forces (CRPF, BSF, CISF, ITBP, SSB) & Indian Armed Forces  
 **Classification:** RESTRICTED / DEFENSE SPECIFICATION  
 
-> *"Prismarine — like the mineral: formed under sustained pressure, structurally layered, and defined by clarity rather than opacity. That's the design philosophy behind this platform — a system built under the same kind of sustained operational pressure it's meant to monitor, with security enforced in transparent, auditable layers (encryption → RBAC → IDS → hash-chained audit) rather than a black box."*
+> *"Prismarine - like the mineral: formed under sustained pressure, structurally layered, and defined by clarity rather than opacity. That's the design philosophy behind this platform - a system built under the same kind of sustained operational pressure it's meant to monitor, with security enforced in transparent, auditable layers (encryption → RBAC → IDS → hash-chained audit) rather than a black box."*
 
 ---
 
 ## 🛡️ Executive Overview
 
-Personnel serving in uniformed defense and paramilitary forces operate under severe operational and physical stressors—hazardous high-altitude postings, counter-insurgency rotations, prolonged family separation, and irregular night sentry duties. 
+Personnel serving in uniformed defense and paramilitary forces operate under severe operational and physical stressors: hazardous high-altitude postings, counter-insurgency rotations, prolonged family separation, and irregular night sentry duties. 
 
 Current stress identification depends on delayed manual observation or voluntary reporting, which is severely hindered by **career stigma anxiety** (fear of service weapon withdrawal, reassignment from operational units, or stalled promotion).
 

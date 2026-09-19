@@ -29,6 +29,16 @@
       <div class="brand-title-group">
         <div class="brand-name">
           PRISMARINE <span class="brand-name-hindi">प्रिज़्मरीन</span>
+          <span class="indian-flag-badge" title="Dedicated to Armed Forces & CAPF Personnel of India">
+            <svg width="24" height="16" viewBox="0 0 24 16" fill="none">
+              <rect width="24" height="5.33" fill="#FF9933"></rect>
+              <rect y="5.33" width="24" height="5.33" fill="#FFFFFF"></rect>
+              <rect y="10.66" width="24" height="5.34" fill="#138808"></rect>
+              <circle cx="12" cy="8" r="2.2" stroke="#000080" stroke-width="0.5" fill="none"></circle>
+              <circle cx="12" cy="8" r="0.45" fill="#000080"></circle>
+              <path d="M12 5.8v4.4M9.8 8h4.4M10.4 6.4l3.2 3.2M13.6 6.4l-3.2 3.2M11.1 5.9l1.8 4.2M12.9 5.9l-1.8 4.2M9.9 7.1l4.2 1.8M9.9 8.9l4.2-1.8" stroke="#000080" stroke-width="0.25"></path>
+            </svg>
+          </span>
         </div>
         <div class="brand-classification">
           INTEGRATED WELFARE COMMAND STATION • ARMED FORCES & CAPF
@@ -52,11 +62,11 @@
 
   <!-- Secondary Tactical Narrative Strip -->
   <div class="narrative-strip">
-    <div class="narrative-quote">
+    <div class="narrative-quote" id="narrative-quote-box">
       <strong>Mineral Philosophy:</strong> Formed under sustained pressure, structurally layered, and defined by clarity rather than opacity.
     </div>
     <div class="tactical-clock" id="live-tactical-clock">
-      SEC-LEVEL: RESTRICTED • BATTALION 104-CRPF
+      14:58:22 IST • 104-CRPF (KUPWARA SECTOR)
     </div>
   </div>
 
@@ -100,27 +110,30 @@
     <!-- ======================================================== -->
     <!-- VIEW 1: PERSONNEL CONFIDENTIAL CHECK-IN                  -->
     <!-- ======================================================== -->
-    <section id="view-personnel" class="view-section active">
+    <!-- ======================================================== -->
+    <!-- VIEW 1: PERSONNEL CONFIDENTIAL CHECK-IN                  -->
+    <!-- ======================================================== -->
+    <section id="view-personnel" class="view-section active theme-personnel">
       <div class="grid-2">
         
         <!-- Check-in Form Card -->
         <div class="card">
           <div class="card-header-row">
             <div class="card-title">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-              Confidential Morale & Fatigue Report
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+              Confidential Daily Wellbeing & Rest Check-In
             </div>
             <span class="badge badge-neutral">Pseudonym: PX-7821</span>
           </div>
           <div class="card-subtitle">
-            Zero-stigma submission. Personal metrics are cryptographically isolated before storage; individual reports are barred from commanding officer view.
+            A safe, confidential space to record your fatigue and mental energy. Your entries are cryptographically encrypted on your device and are never visible to unit commanders.
           </div>
 
           <form id="checkin-form" onsubmit="submitCheckIn(event)">
             
             <div class="slider-group">
               <div class="slider-label-row">
-                <span class="slider-label-text">Overall Morale & Mental Energy</span>
+                <span class="slider-label-text">Energy & Mood Today (1: Drained to 10: Rested & Motivated)</span>
                 <span class="slider-value-pill" id="val_mood">4 / 10</span>
               </div>
               <input type="range" min="1" max="10" value="4" class="calm-slider" id="p_mood">
@@ -136,32 +149,32 @@
 
             <div class="slider-group">
               <div class="slider-label-row">
-                <span class="slider-label-text">Perceived Operational Stress</span>
+                <span class="slider-label-text">Daily Stress & Operational Strain (1: Calm to 10: High Strain)</span>
                 <span class="slider-value-pill" id="val_stress">8 / 10</span>
               </div>
               <input type="range" min="1" max="10" value="8" class="calm-slider" id="p_stress">
             </div>
 
             <div class="form-group">
-              <label class="form-label">PHQ-4 Screening Score (Anxiety & Depressive Strain, 0–12)</label>
+              <label class="form-label">PHQ-4 Screening Score (Anxiety & Depressive Strain, 0-12)</label>
               <select class="form-control" id="p_phq4">
-                <option value="2">0–2: Normal / Mild Stress</option>
-                <option value="5">3–5: Moderate Fatigue</option>
-                <option value="8" selected>6–8: High Emotional Exhaustion</option>
-                <option value="11">9–12: Severe Distress</option>
+                <option value="2" selected>0-2: Normal / Mild Stress</option>
+                <option value="5">3-5: Moderate Fatigue</option>
+                <option value="8">6-8: High Emotional Exhaustion</option>
+                <option value="11">9-12: Severe Distress</option>
               </select>
             </div>
 
             <div class="form-group">
               <label class="form-label">Confidential Reflection or Operational Burden (Optional)</label>
-              <textarea class="form-control" rows="3" id="p_reflection" placeholder="Describe deployment fatigue, family separation, or physical exhaustion in your own words..."></textarea>
+              <textarea class="form-control" rows="3" id="p_reflection" placeholder="Share any thoughts about workload, family separation, or physical fatigue in complete confidence..."></textarea>
             </div>
 
             <div id="checkin-encryption-status" style="display: none; margin-bottom: 1.25rem;"></div>
 
             <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-              Encrypt & Submit Confidential Check-In
+              Submit Confidential Check-In
             </button>
           </form>
         </div>
@@ -169,14 +182,14 @@
         <!-- Privacy Guarantees & Self-Audit History -->
         <div>
           
-          <!-- 3 Calm Reassurance Cards (Replacing the jargon wall) -->
+          <!-- 3 Calm Reassurance Cards -->
           <div class="guarantee-card">
             <div class="guarantee-icon">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
             </div>
             <div>
               <div class="guarantee-title">Identity Decoupled by Design</div>
-              <div class="guarantee-text">Your service number (<code style="color: #38bdf8;">CRPF-104-7821</code>) is isolated in an encrypted identity vault. Wellness telemetry is keyed exclusively to rotating pseudonym <code style="color: #38bdf8;">PX-7821</code>.</div>
+              <div class="guarantee-text">Your service number (<code style="color: #2dd4bf;">CRPF-104-7821</code>) is isolated in an encrypted identity vault. Wellness telemetry is keyed exclusively to rotating pseudonym <code style="color: #2dd4bf;">PX-7821</code>.</div>
             </div>
           </div>
 
@@ -186,7 +199,7 @@
             </div>
             <div>
               <div class="guarantee-title">Commander Mathematical Blind</div>
-              <div class="guarantee-text">Commanding officers have zero physical access to individual soldier reports or pseudonyms. Leadership screens view strictly anonymized unit aggregates (<span style="color: #34d399;">k ≥ 5</span>).</div>
+              <div class="guarantee-text">Commanding officers have zero physical access to individual soldier reports or pseudonyms. Leadership screens view strictly anonymized unit aggregates (<span style="color: #34d399;">k &ge; 5</span>).</div>
             </div>
           </div>
 
@@ -195,8 +208,8 @@
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg>
             </div>
             <div>
-              <div class="guarantee-title">Non-Punitive Respite Directives</div>
-              <div class="guarantee-text">Flags trigger clinical welfare support, R&R rotational leave, and peer buddy assignments—never weapon withdrawal, disciplinary action, or administrative penalties.</div>
+              <div class="guarantee-title">Care & Respite, Never Disciplinary Action</div>
+              <div class="guarantee-text">Flags trigger clinical welfare support, R&R rotational leave, and peer buddy assignments; never weapon withdrawal, disciplinary action, or administrative penalties.</div>
             </div>
           </div>
 
@@ -288,6 +301,76 @@
         </div>
       </div>
 
+      <!-- ======================================================== -->
+      <!-- THE CENTERPIECE: NAIVE HR vs PRISMARINE GAME ENGINE     -->
+      <!-- ======================================================== -->
+      <div class="comparison-card">
+        <div class="comparison-header">
+          <div class="comparison-title">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+            Why Defense Forces Require Game-Theoretic Prioritization
+          </div>
+          <span class="badge badge-neutral">Bayesian Stackelberg Formulation vs Strategic Deception</span>
+        </div>
+        
+        <div class="comparison-grid">
+          <!-- Left: Naive HR Systems -->
+          <div class="comparison-col naive-col">
+            <div class="col-tagline fail-tag">Naive HR Systems (Self-Reports Only)</div>
+            <div class="comparison-case">
+              <div class="case-subject">
+                <strong>Sunil Yadav (PX-4102)</strong>
+                <span class="badge badge-neutral">Reports: 0/10 Distress</span>
+              </div>
+              <p class="case-desc">Reports zero distress out of career fear and stigma anxiety. A conventional HR system ranks him at the very bottom (#15, completely invisible).</p>
+              <div class="case-outcome failure">Failure: Acute operational breakdown goes unnoticed.</div>
+            </div>
+            <div class="comparison-case">
+              <div class="case-subject">
+                <strong>Vikram Singh (PX-9921)</strong>
+                <span class="badge badge-crimson">Reports: 10/10 Distress</span>
+              </div>
+              <p class="case-desc">Reports maximum distress with zero deployment hardship or sleep deficit. A conventional HR system ranks him #1.</p>
+              <div class="case-outcome failure">Failure: Wastes limited clinical officer capacity (C=15).</div>
+            </div>
+            <div class="col-summary">Vulnerable to career stigma concealment and complaint gaming.</div>
+          </div>
+
+          <!-- Right: Prismarine Engine -->
+          <div class="comparison-col prismarine-col">
+            <div class="col-tagline success-tag">Prismarine Engine (Bayesian Stackelberg Formulation)</div>
+            <div class="comparison-case">
+              <div class="case-subject">
+                <strong>Sunil Yadav (PX-4102)</strong>
+                <span class="badge badge-amber">Flagged: STIGMA-MASKED</span>
+              </div>
+              <p class="case-desc">195 forward deployment days and 3 denied leaves detected. Cross-referenced against under-report: elevated to top priority (U = +3.21).</p>
+              <div class="case-outcome success">Success: Proactive confidential welfare outreach delivered.</div>
+            </div>
+            <div class="comparison-case">
+              <div class="case-subject">
+                <strong>Vikram Singh (PX-9921)</strong>
+                <span class="badge badge-neutral">Flagged: LOW CORROBORATION</span>
+              </div>
+              <p class="case-desc">High complaints uncorroborated by deployment fatigue. Deprioritized to protect welfare counselor bandwidth.</p>
+              <div class="case-outcome success">Success: Preserves officer capacity for authentic emergencies.</div>
+            </div>
+            <div class="col-summary">Mathematically robust to both stigma concealment and complaint inflation.</div>
+          </div>
+        </div>
+
+        <div class="comparison-banner">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          <span>The engine looks past what soldiers report out of career fear, to what their operational deployment history proves.</span>
+        </div>
+      </div>
+
       <!-- Cohort Queue Table -->
       <div class="card">
         <div class="card-header-row">
@@ -341,16 +424,21 @@
           </div>
 
           <!-- Cohort Query Buttons (Demonstrating Perimeter Defenses) -->
-          <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-            <span style="font-size: 0.76rem; color: var(--text-muted);">Query Cohort:</span>
-            <button class="btn-subtle" style="color: #38bdf8; border-color: rgba(56, 189, 248, 0.3);" onclick="loadCommanderData('104-CRPF')">
-              104-CRPF (Assigned)
+          <div class="cohort-query-group">
+            <span class="cohort-query-label">Operational Cohort:</span>
+            <button class="btn-cohort-query assigned active" id="cmd-btn-104" onclick="loadCommanderData('104-CRPF')">
+              <span class="dot-indicator green"></span>
+              104-CRPF (Assigned Unit)
             </button>
-            <button class="btn-subtle" onclick="loadCommanderData('42-BSF')">
-              42-BSF (Probe Cross-Unit)
+            <button class="btn-cohort-query boundary-test" id="cmd-btn-42" onclick="loadCommanderData('42-BSF')">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              42-BSF
+              <span class="query-badge boundary">Restricted • Boundary Test</span>
             </button>
-            <button class="btn-subtle" onclick="loadCommanderData('88-ITBP')">
-              88-ITBP (Small Unit, N=3)
+            <button class="btn-cohort-query k-test" id="cmd-btn-88" onclick="loadCommanderData('88-ITBP')">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+              88-ITBP
+              <span class="query-badge k-guard">N=3 • k &lt; 5 Guard Test</span>
             </button>
           </div>
         </div>
@@ -389,7 +477,7 @@
               <span class="metric-title">Combat Readiness Index</span>
               <span class="badge badge-emerald">OPERATIONAL</span>
             </div>
-            <div class="metric-num" style="color: #34d399;" id="cmd-readiness-val">--%</div>
+            <div class="metric-num" style="color: #34d399;" id="cmd-readiness-val">91.4%</div>
             <div class="metric-footer" id="cmd-cohort-size">Cohort: N=15 (k>=5 Satisfied)</div>
           </div>
 
@@ -398,7 +486,7 @@
               <span class="metric-title">Cohort Stress Index</span>
               <span class="badge badge-amber">TOLERABLE</span>
             </div>
-            <div class="metric-num" style="color: #fbbf24;" id="cmd-stress-val">--</div>
+            <div class="metric-num" style="color: #fbbf24;" id="cmd-stress-val">38.2</div>
             <div class="metric-footer">Laplace DP Perturbation Added</div>
           </div>
 
@@ -407,7 +495,7 @@
               <span class="metric-title">Leave Deficit Rate</span>
               <span class="badge badge-neutral">>120 Days</span>
             </div>
-            <div class="metric-num" id="cmd-leave-deficit-val">--%</div>
+            <div class="metric-num" id="cmd-leave-deficit-val">18.5%</div>
             <div class="metric-footer">Rotational R&R Backlog</div>
           </div>
 
@@ -416,7 +504,7 @@
               <span class="metric-title">Night Shift Strain</span>
               <span class="badge badge-neutral">Circadian</span>
             </div>
-            <div class="metric-num" id="cmd-fatigue-val">--%</div>
+            <div class="metric-num" id="cmd-fatigue-val">14.2%</div>
             <div class="metric-footer">Irregular Sentry Schedules</div>
           </div>
         </div>
@@ -652,6 +740,57 @@
       <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
         <button class="btn-subtle" onclick="closeModal('break-glass-modal')">Cancel</button>
         <button class="btn-danger" onclick="executeBreakGlass()">Authorize Emergency Unmasking</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- PHASE 1: ZERO-TRUST AUTH HANDSHAKE OVERLAY               -->
+  <!-- ======================================================== -->
+  <div id="auth-overlay" class="auth-overlay">
+    <div class="auth-card">
+      <div class="auth-card-header">
+        <div class="auth-lock-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+        </div>
+        <div>
+          <div class="auth-card-title">AUTHENTICATING CREDENTIALS</div>
+          <div class="auth-card-sub" id="auth-role-desc">Role-Scoped Zero-Trust Handshake</div>
+        </div>
+      </div>
+
+      <div class="auth-credential-grid">
+        <div class="auth-field">
+          <span class="auth-label">Identity Subject:</span>
+          <span class="auth-val" id="auth-user-display">rajesh_kumar</span>
+        </div>
+        <div class="auth-field">
+          <span class="auth-label">Assigned Unit:</span>
+          <span class="auth-val" id="auth-unit-display">104-CRPF</span>
+        </div>
+        <div class="auth-field">
+          <span class="auth-label">Password Secret:</span>
+          <span class="auth-val font-mono">••••••••••••</span>
+        </div>
+        <div class="auth-field" id="auth-totp-container">
+          <span class="auth-label">Step-Up Hardware TOTP:</span>
+          <div class="auth-totp-boxes" id="auth-totp-boxes">
+            <span class="totp-box" id="totp-d1">-</span>
+            <span class="totp-box" id="totp-d2">-</span>
+            <span class="totp-box" id="totp-d3">-</span>
+            <span class="totp-box" id="totp-d4">-</span>
+            <span class="totp-box" id="totp-d5">-</span>
+            <span class="totp-box" id="totp-d6">-</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="auth-status-bar" id="auth-status-bar">
+        <div class="auth-spinner" id="auth-spinner"></div>
+        <span id="auth-status-text">Verifying cryptographic scope entitlements...</span>
       </div>
     </div>
   </div>

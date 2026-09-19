@@ -42,7 +42,7 @@ class GameTheoreticAlertEngine:
                 "signal_archetype": "CRISIS_IMMEDIATE_OVERRIDE",
                 "strategic_rationale": (
                     f"ACUTE CRISIS DISPATCH: {risk_data.get('crisis_reason')} "
-                    "Algorithm bypassed — immediate confidential welfare officer contact mandated."
+                    "Algorithm bypassed: immediate confidential welfare officer contact mandated."
                 ),
                 "p_true_distress": 1.0,
                 "expected_utility": 999.0,  # Unconditionally forces top rank
