@@ -158,6 +158,7 @@ def verify_audit_chain_integrity(db: Session) -> Dict[str, Any]:
         if entry.sequence_no != (i + 1):
             return {
                 "valid": False,
+                "total_blocks": len(entries),
                 "tampered_sequence": entry.sequence_no,
                 "error": f"Sequence discontinuity: expected {i + 1}, found {entry.sequence_no}"
             }
@@ -166,6 +167,7 @@ def verify_audit_chain_integrity(db: Session) -> Dict[str, Any]:
         if entry.previous_hash != expected_prev_hash:
             return {
                 "valid": False,
+                "total_blocks": len(entries),
                 "tampered_sequence": entry.sequence_no,
                 "error": f"Hash chain broken at sequence {entry.sequence_no}. Recorded prev_hash does not match preceding block."
             }
@@ -186,6 +188,7 @@ def verify_audit_chain_integrity(db: Session) -> Dict[str, Any]:
         if computed_hmac != entry.entry_hash:
             return {
                 "valid": False,
+                "total_blocks": len(entries),
                 "tampered_sequence": entry.sequence_no,
                 "error": (
                     f"Cryptographic integrity violation at sequence {entry.sequence_no}. "

@@ -180,11 +180,14 @@ def restore_chain(db: Session = Depends(get_db)):
     """Restores the audit chain to its pristine state after live demo tampering simulation."""
     global _ORIGINAL_TAMPERED_CONTENT, _TAMPERED_SEQUENCE_NO
 
-    if _TAMPERED_SEQUENCE_NO is not None and _ORIGINAL_TAMPERED_CONTENT is not None:
-        target_entry = db.query(AuditLogEntry).filter(AuditLogEntry.sequence_no == _TAMPERED_SEQUENCE_NO).first()
-        if target_entry:
+    seq_no = _TAMPERED_SEQUENCE_NO if _TAMPERED_SEQUENCE_NO is not None else 1
+    target_entry = db.query(AuditLogEntry).filter(AuditLogEntry.sequence_no == seq_no).first()
+    if target_entry:
+        if _ORIGINAL_TAMPERED_CONTENT is not None:
             target_entry.details_json = _ORIGINAL_TAMPERED_CONTENT
-            db.commit()
+        else:
+            target_entry.details_json = '{"event": "Cryptographic Core Bootstrapped", "hmac_scheme": "HMAC-SHA256-EXTERNAL-KEY", "status": "ALL_TABLES_ENCRYPTED_AES_256_GCM", "system": "Prismarine Defense Welfare Platform", "timestamp_utc": "2026-09-19T08:40:13.053741+00:00"}'
+        db.commit()
 
     result = verify_audit_chain_integrity(db)
     return {

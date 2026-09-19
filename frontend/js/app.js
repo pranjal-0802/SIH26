@@ -226,8 +226,6 @@ function showAuthHandshake(roleKey, onComplete) {
 }
 
 window.switchRole = async function(roleKey, skipAuth = false) {
-  if (roleKey === currentRole && !skipAuth) return;
-
   function finishSwitch() {
     currentRole = roleKey;
     
@@ -276,7 +274,7 @@ window.switchRole = async function(roleKey, skipAuth = false) {
     }
   }
 
-  if (skipAuth) {
+  if (skipAuth || roleKey === currentRole) {
     finishSwitch();
   } else {
     showAuthHandshake(roleKey, finishSwitch);
@@ -702,7 +700,7 @@ window.loadCommanderData = async function(battalionCode) {
 // ----------------------------------------------------
 async function loadAuditChain() {
   try {
-    const res = await fetch(`${API_BASE}/admin/audit-chain?limit=15`, {
+    const res = await fetch(`${API_BASE}/admin/audit-chain?limit=25`, {
       headers: getAuthHeader('admin')
     });
     if (res.ok) {
@@ -710,27 +708,65 @@ async function loadAuditChain() {
       const stream = document.getElementById('audit-log-stream');
       stream.innerHTML = '';
 
-      const st = data.integrity_status;
+      const st = data.integrity_status || {};
       const statusLabel = document.getElementById('header-status-label');
       const statusDot = document.getElementById('system-status-dot');
 
       if (st.valid) {
-        statusDot.className = 'status-dot';
-        statusLabel.textContent = `Defense-Grade Secure • Level 4 Encryption Active`;
+        if (statusDot) statusDot.className = 'status-dot';
+        if (statusLabel) statusLabel.textContent = 'Defense-Grade Secure • Level 4 Encryption Active';
       } else {
-        statusDot.className = 'status-dot danger';
-        statusLabel.textContent = `INTEGRITY VIOLATION • Block #${st.tampered_sequence} Altered`;
+        if (statusDot) statusDot.className = 'status-dot danger';
+        if (statusLabel) statusLabel.textContent = `INTEGRITY VIOLATION • Block #${st.tampered_sequence} Altered`;
       }
 
       data.blocks.forEach(b => {
         const div = document.createElement('div');
-        div.className = `audit-stream-row ${b.is_anomaly ? 'anomaly' : ''}`;
+        const isTampered = !st.valid && (b.sequence_no === st.tampered_sequence);
+        let rowClass = 'audit-stream-row';
+        if (isTampered) {
+          rowClass += ' tampered';
+        } else if (b.is_anomaly) {
+          rowClass += ' anomaly';
+        }
+        div.className = rowClass;
+
+        let detailsSnippet = '';
+        if (b.details) {
+          try {
+            const parsed = typeof b.details === 'string' ? JSON.parse(b.details) : b.details;
+            if (parsed.simulation === 'LIVE_INSIDER_THREAT_SIMULATION') {
+              detailsSnippet = `<span style="color: #fbbf24; font-weight: 600;">INSIDER THREAT SIMULATION:</span> Cross-battalion unauthorized probe (${parsed.assigned_battalion} -> ${parsed.target_battalion}) blocked by Access-Pattern IDS.`;
+            } else if (parsed.event === 'CORRUPTED_BY_ROGUE_DBA') {
+              detailsSnippet = `<span style="color: #f87171; font-weight: 700;">MALICIOUS MUTATION:</span> {"event": "CORRUPTED_BY_ROGUE_DBA", "status": "TAMPERED_RECORD"}`;
+            } else if (parsed.action === 'CRYPTOGRAPHIC_CHAIN_VERIFICATION' || b.action === 'CRYPTOGRAPHIC_CHAIN_VERIFICATION') {
+              detailsSnippet = parsed.result 
+                ? `<span style="color: #34d399; font-weight: 600;">CHAIN VERIFICATION:</span> All ${parsed.total_blocks} blocks valid with WORM anchor.`
+                : `<span style="color: #f87171; font-weight: 700;">CHAIN VERIFICATION FAILED:</span> Signature mismatch detected at Block #${parsed.tampered_sequence}.`;
+            } else if (parsed.event) {
+              detailsSnippet = `Event: ${parsed.event} (${parsed.status || ''})`;
+            } else {
+              detailsSnippet = typeof b.details === 'string' ? b.details : JSON.stringify(parsed);
+            }
+          } catch (e) {
+            detailsSnippet = b.details;
+          }
+        }
+
+        let badgeHtml = '';
+        if (isTampered) {
+          badgeHtml = '<span class="badge badge-crimson" style="font-size: 0.68rem; margin-left: 0.5rem;">HMAC SIGNATURE MISMATCH</span>';
+        } else if (b.is_anomaly) {
+          badgeHtml = '<span class="badge badge-amber" style="font-size: 0.68rem; margin-left: 0.5rem;">SECURITY ANOMALY</span>';
+        }
+
         div.innerHTML = `
           <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span><strong style="color: #f8fafc;">Block #${b.sequence_no}</strong> • <span style="color: #cbd5e1;">${b.action}</span></span>
+            <span><strong style="color: #f8fafc;">Block #${b.sequence_no}</strong> • <span style="color: #cbd5e1;">${b.action}</span>${badgeHtml}</span>
             <span style="color: var(--text-muted); font-size: 0.72rem;">${new Date(b.timestamp_iso || b.timestamp).toLocaleTimeString()}</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-secondary);">Actor: <strong style="color: #e2e8f0;">${b.actor_id}</strong> (${b.actor_role}) | Battalion Scope: ${b.scope_battalion || 'GLOBAL'}</div>
+          ${detailsSnippet ? `<div style="font-size: 0.72rem; color: #94a3b8; font-family: var(--font-mono); background: rgba(0,0,0,0.3); padding: 0.35rem 0.5rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.06);">${detailsSnippet}</div>` : ''}
           <div class="audit-hash-code">HMAC: ${b.entry_hash.slice(0, 32)}... | Prev: ${b.previous_hash.slice(0, 16)}...</div>
         `;
         stream.appendChild(div);
@@ -783,15 +819,20 @@ window.runChainVerification = async function() {
       method: 'POST',
       headers: getAuthHeader('admin')
     });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      showToast(`Verification endpoint error (HTTP ${res.status}): ${err.detail || 'Service error'}`);
+      return;
+    }
     const data = await res.json();
     if (data.valid) {
       showToast(`HMAC Audit Verified: All ${data.total_blocks} blocks intact with WORM anchoring.`);
     } else {
-      showToast(`INTEGRITY VIOLATION at Block #${data.tampered_sequence}!`);
+      showToast(`INTEGRITY VIOLATION DETECTED: Block #${data.tampered_sequence} signature mismatch!`);
     }
     loadAuditChain();
   } catch (e) {
-    alert('Verification failed');
+    showToast(`Verification network error: ${e.message}`);
   }
 };
 
@@ -807,17 +848,19 @@ window.triggerRogueQuery = async function() {
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       if (res.status === 404) {
-        alert('Demo triggers are disabled when DEMO_MODE=false in your .env');
+        showToast('Demo triggers are disabled when DEMO_MODE=false in your .env');
       } else {
-        alert(err.detail || `Trigger failed with status ${res.status}`);
+        showToast(err.detail || `Trigger failed with status ${res.status}`);
       }
       return;
     }
     const data = await res.json();
     showToast(`INSIDER THREAT INTERCEPTED: ${data.actor} blocked by IDS.`);
-    switchRole('admin');
+    switchRole('admin', true);
+    loadAuditChain();
+    loadIdsAlerts();
   } catch (e) {
-    alert(`Connection error: ${e.message}`);
+    showToast(`Connection error: ${e.message}`);
   }
 };
 
@@ -830,17 +873,19 @@ window.simulateTampering = async function() {
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       if (res.status === 404) {
-        alert('Demo triggers are disabled when DEMO_MODE=false in your .env');
+        showToast('Demo triggers are disabled when DEMO_MODE=false in your .env');
       } else {
-        alert(err.detail || `Tampering failed with status ${res.status}`);
+        showToast(err.detail || `Tampering failed with status ${res.status}`);
       }
       return;
     }
     const data = await res.json();
-    showToast('DATABASE TAMPERING SIMULATED: HMAC signature failed!');
-    switchRole('admin');
+    showToast('DATABASE TAMPERING SIMULATED: Block #1 mutated in SQL!');
+    switchRole('admin', true);
+    loadAuditChain();
+    loadIdsAlerts();
   } catch (e) {
-    alert(`Tampering simulation error: ${e.message}`);
+    showToast(`Tampering simulation error: ${e.message}`);
   }
 };
 
@@ -852,13 +897,15 @@ window.restoreChain = async function() {
     });
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      alert(err.detail || `Restore failed with status ${res.status}`);
+      showToast(err.detail || `Restore failed with status ${res.status}`);
       return;
     }
-    showToast('HMAC Audit Chain restored.');
-    switchRole('admin');
+    showToast('HMAC Audit Chain restored to nominal baseline.');
+    switchRole('admin', true);
+    loadAuditChain();
+    loadIdsAlerts();
   } catch (e) {
-    alert(`Restore error: ${e.message}`);
+    showToast(`Restore error: ${e.message}`);
   }
 };
 

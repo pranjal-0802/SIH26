@@ -61,13 +61,21 @@ def verify_integrity(
     """
     result = verify_audit_chain_integrity(db)
 
+    total_blocks = result.get("total_blocks", 0)
     append_audit_entry(
         db=db,
         actor_id=user.username,
         actor_role=user.role,
         action="CRYPTOGRAPHIC_CHAIN_VERIFICATION",
         endpoint="/admin/verify-integrity",
-        details={"result": result["valid"], "total_blocks": result["total_blocks"]}
+        details={
+            "result": result["valid"],
+            "total_blocks": total_blocks,
+            "tampered_sequence": result.get("tampered_sequence"),
+            "error": result.get("error")
+        },
+        is_anomaly=not result["valid"],
+        anomaly_score=1.0 if not result["valid"] else 0.0
     )
 
     return result
