@@ -3,9 +3,7 @@ from fastapi.testclient import TestClient
 from app.main import app
 from app.core.security import create_access_token
 
-client = TestClient(app)
-
-def test_ids_catches_welfare_cross_battalion_snoop():
+def test_ids_catches_welfare_cross_battalion_snoop(client):
     token = create_access_token(
         subject="welfare_rogue",
         role="welfare_officer",
@@ -21,7 +19,7 @@ def test_ids_catches_welfare_cross_battalion_snoop():
     detail = response.json()["detail"]
     assert "CROSS_BATTALION_INTRUSION" in detail or "Security Alert" in detail
 
-def test_ids_catches_commander_idor_snoop():
+def test_ids_catches_commander_idor_snoop(client):
     # Commander assigned to 104-CRPF attempts unauthorized aggregation on 42-BSF
     token = create_access_token(
         subject="cmd_singh",
@@ -38,7 +36,7 @@ def test_ids_catches_commander_idor_snoop():
     detail = response.json()["detail"]
     assert "COMMANDER_IDOR_VIOLATION" in detail or "Security Alert" in detail
 
-def test_ids_alerts_endpoint_records_intrusion():
+def test_ids_alerts_endpoint_records_intrusion(client):
     admin_token = create_access_token(subject="sec_admin", role="admin")
     response = client.get(
         "/api/v1/admin/ids-alerts",

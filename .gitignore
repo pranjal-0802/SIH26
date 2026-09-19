@@ -12,7 +12,8 @@ ENV/
 # Database & State
 *.db
 *.sqlite3
-external_trust_anchor.json
+test_prismarine.db*
+external_trust_anchor.json*
 
 # Testing & Cache
 .pytest_cache/

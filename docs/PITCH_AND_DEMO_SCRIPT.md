@@ -68,14 +68,13 @@
 
 ## 4. "Known Limitations, By Design" (Preempting the Jury)
 
-When judges probe technical edge cases, proactively present this slide:
+When judges probe technical edge cases, proactively present these answers:
 
-1. **Differential Privacy Budget Window**:
-   - *Design Boundary*: Rolling 24-hour window ($\epsilon = 5.0$).
-   - *Rationale*: A static infinite budget eventually runs out; a rolling window balances longitudinal commander readiness insights against differential reconstruction attacks.
-2. **IDS State Architecture**:
-   - *Design Boundary*: Single-process in-memory sliding window cache for demo simplicity.
-   - *Production Path*: Horizontally scales to Redis clusters in multi-node deployments with identical anomaly scoring algorithms.
-3. **External Trust Anchoring**:
-   - *Design Boundary*: Local JSON external WORM anchor registry.
-   - *Production Path*: Easily configured to write to AWS CloudTrail, an immutable S3 Object Lock bucket, or an air-gapped defense syslog.
+1. **"What happens when the Differential Privacy budget runs out? Do you block the Commander?"**
+   - *Presenter Response*: "By design, Prismarine implements **Graceful Privacy Degradation rather than a hard stop**. In high-tempo defense operations, completely blinding a commander with an HTTP 429/403 during an active crisis is a major life-safety hazard. Instead, when the rolling 24h budget ($\epsilon=5.0$) is spent, the engine automatically halves $\epsilon$, doubling Laplace noise variance, and tags the response as `BUDGET_EXHAUSTED_EXTRA_NOISE`. High-level macro distributions remain visible, but mathematical reconstruction fidelity is actively destroyed. If an agency strictly mandates query refusal, setting `DP_STRICT_ENFORCEMENT=true` enables a hard cutoff."
+
+2. **"Can't an insider with server access rewrite your local external anchor file?"**
+   - *Presenter Response*: "Yes—and that is why our architecture explicitly defines trust boundaries: **an external anchor only provides true defense-grade protection once it is written to a system the application host itself cannot modify**. For our standalone demonstration, we enforce an append-only ledger (`.jsonl`) so full-chain rewrites are detectable by diffing historical snapshots. For production defense deployments, the append stream forwards out-of-band to an immutable WORM repository outside the app host's trust boundary: an air-gapped defense syslog enclave, a Hardware Security Module (HSM), or an AWS S3 Object Lock bucket in Compliance Mode."
+
+3. **"How does the Access-Pattern IDS scale across distributed nodes?"**
+   - *Presenter Response*: "Our IDS scoring engine runs standalone in-memory for the demo. In a cluster deployment, the sliding window state moves into a distributed Redis/Valkey cache with zero changes to our cross-battalion and velocity detection algorithms."

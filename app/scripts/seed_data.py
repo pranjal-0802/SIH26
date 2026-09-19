@@ -2,7 +2,8 @@ import os
 from datetime import datetime, timezone, timedelta
 from sqlalchemy.orm import Session
 
-from app.database import engine, Base, SessionLocal
+import app.database
+from app.database import Base
 from app.models.user import User
 from app.models.identity import PersonnelIdentity
 from app.models.pseudonym import PseudonymMapping
@@ -12,12 +13,15 @@ from app.models.case import AlertCase
 from app.core.security import hash_password
 from app.audit.chain import append_audit_entry
 
-def seed_database():
+def seed_database(bind_engine=None, session_factory=None):
     """Initializes tables and populates realistic seeded synthetic CAPF data."""
+    target_engine = bind_engine or app.database.engine
+    target_session_factory = session_factory or app.database.SessionLocal
+
     # Create all tables
-    Base.metadata.create_all(bind=engine)
+    Base.metadata.create_all(bind=target_engine)
     
-    db: Session = SessionLocal()
+    db: Session = target_session_factory()
     try:
         # Check if already seeded
         if db.query(User).first() is not None:

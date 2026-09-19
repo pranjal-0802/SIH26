@@ -104,7 +104,19 @@ def sanitize_cohort_aggregate(
         battalion_code, dp_epsilon
     )
 
-    # If privacy budget exhausted, apply extra noise to prevent reconstruction
+    if not is_budget_ok and getattr(settings, "DP_STRICT_ENFORCEMENT", False):
+        return {
+            "status": "EXHAUSTED_BLOCKED",
+            "cohort_size": cohort_size,
+            "k_threshold": min_k,
+            "dp_budget_status": "BUDGET_EXHAUSTED_HARD_STOP",
+            "dp_daily_budget_spent": round(spent_budget, 2),
+            "dp_daily_budget_remaining": 0.0,
+            "reason": "Differential privacy daily epsilon budget exhausted (strict policy active)",
+            "metrics": None
+        }
+
+    # If privacy budget exhausted under default graceful degradation, apply extra noise to prevent reconstruction
     active_epsilon = dp_epsilon if is_budget_ok else max(0.1, dp_epsilon / 2.0)
     budget_flag = "BUDGET_ACTIVE" if is_budget_ok else "BUDGET_EXHAUSTED_EXTRA_NOISE"
 

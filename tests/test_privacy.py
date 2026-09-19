@@ -2,9 +2,8 @@ import pytest
 from fastapi.testclient import TestClient
 from app.main import app
 from app.core.security import create_access_token
-from app.analytics.privacy import apply_k_anonymity_guard, add_laplace_noise
-
-client = TestClient(app)
+from app.analytics.privacy import apply_k_anonymity_guard, add_laplace_noise, sanitize_cohort_aggregate, dp_budget_tracker
+from app.config import settings
 
 def test_k_anonymity_guard_logic():
     small_cohort = ["p1", "p2", "p3", "p4"]
@@ -25,7 +24,24 @@ def test_differential_privacy_noise():
     mean_val = sum(noisy_samples) / len(noisy_samples)
     assert abs(mean_val - true_val) < 2.0
 
-def test_commander_endpoint_requires_totp_mfa():
+def test_dp_budget_exhaustion_graceful_degradation():
+    # Exhaust budget for a dummy cohort
+    cohort_tag = "TEST-DP-COHORT"
+    dp_budget_tracker._expenditures[cohort_tag] = []
+    
+    # Consume entire budget
+    for _ in range(15):
+        dp_budget_tracker.check_and_consume_budget(cohort_tag, 1.0)
+        
+    metrics = {"avg_stress": 55.0, "leave_deficit": 40.0}
+    res = sanitize_cohort_aggregate(metrics, cohort_size=10, battalion_code=cohort_tag)
+    
+    # Under graceful degradation, query is not blocked; it applies extra noise
+    assert res["status"] == "ANONYMIZED_COMPLIANT"
+    assert res["dp_budget_status"] == "BUDGET_EXHAUSTED_EXTRA_NOISE"
+    assert res["metrics"] is not None
+
+def test_commander_endpoint_requires_totp_mfa(client):
     token = create_access_token(subject="cmd_singh", role="commander", assigned_battalion="104-CRPF")
     
     # Missing X-TOTP-Code header
@@ -36,7 +52,7 @@ def test_commander_endpoint_requires_totp_mfa():
     assert res_no_totp.status_code == 403
     assert "Multi-Factor Authentication Required" in res_no_totp.json()["detail"]
 
-def test_commander_endpoint_k_anonymity_suppression():
+def test_commander_endpoint_k_anonymity_suppression(client):
     token = create_access_token(subject="cmd_singh", role="commander", assigned_battalion="104-CRPF")
     headers = {"Authorization": f"Bearer {token}", "X-TOTP-Code": "123456"}
     

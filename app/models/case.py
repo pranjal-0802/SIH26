@@ -1,12 +1,14 @@
 from datetime import datetime, timezone
-from sqlalchemy import Column, Integer, String, Boolean, Text, DateTime
+from sqlalchemy import Column, Integer, String, Boolean, DateTime
 from app.database import Base
+from app.core.crypto import EncryptedString
 
 class AlertCase(Base):
     """
     Stateful Welfare Case Management.
     Enables tracking of intervention lifecycle (OPEN -> ACKNOWLEDGED -> IN_PROGRESS -> RESOLVED).
     Eliminates stateless alert recalculation so resolved cases leave the active queue.
+    All psychological clinical notes and non-punitive actions are AES-256-GCM encrypted at rest.
     """
     __tablename__ = "welfare_alert_cases"
 
@@ -20,8 +22,9 @@ class AlertCase(Base):
     is_crisis = Column(Boolean, default=False, nullable=False)
     
     assigned_officer = Column(String(64), nullable=True)
-    action_taken = Column(String(128), nullable=True)  # e.g. R&R Leave Granted, Peer Buddy Assigned, Counseling Scheduled
-    clinical_notes = Column(Text, nullable=True)
+    action_taken = Column("encrypted_action_taken", EncryptedString, nullable=True)  # AES-256-GCM encrypted at rest
+    clinical_notes = Column("encrypted_clinical_notes", EncryptedString, nullable=True)  # AES-256-GCM encrypted confidential notes
     
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
+

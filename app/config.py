@@ -54,6 +54,8 @@ class Settings:
     K_ANONYMITY_THRESHOLD: int = int(os.getenv("K_ANONYMITY_THRESHOLD", "5"))
     DP_EPSILON: float = float(os.getenv("DP_EPSILON", "0.5"))
     DP_MAX_BUDGET_PER_DAY: float = float(os.getenv("DP_MAX_BUDGET_PER_DAY", "5.0"))
+    # When True, queries are rejected with HTTP 429 when budget is exhausted. When False (default), graceful noise degradation is applied.
+    DP_STRICT_ENFORCEMENT: bool = os.getenv("DP_STRICT_ENFORCEMENT", "false").lower() in ("true", "1", "yes")
     
     # Game-theoretic alert prioritization parameters
     OFFICER_WEEKLY_CAPACITY: int = int(os.getenv("OFFICER_WEEKLY_CAPACITY", "15"))

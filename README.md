@@ -158,12 +158,17 @@ Open your browser at **`http://localhost:8000`** to access the unified operation
 
 ## 🔍 Known Limitations, By Design (Preempting the Jury)
 
-1. **Differential Privacy Budget Window**:
-   - *Design Boundary*: Rolling 24-hour window ($\epsilon = 5.0$).
-   - *Rationale*: A static infinite budget eventually runs out; a rolling window balances longitudinal commander readiness insights against differential reconstruction attacks.
-2. **IDS State Architecture**:
-   - *Design Boundary*: Single-process in-memory sliding window cache for demo simplicity.
-   - *Production Path*: Horizontally scales to Redis clusters in multi-node deployments with identical anomaly scoring algorithms.
-3. **External Trust Anchoring**:
-   - *Design Boundary*: Local JSON external WORM anchor registry (`external_trust_anchor.json`).
-   - *Production Path*: Easily configured to write to AWS CloudTrail, an immutable S3 Object Lock bucket, or an air-gapped defense syslog.
+1. **Differential Privacy Budget Exhaustion: Graceful Degradation vs. Hard Stop**:
+   - *Design Choice*: Rolling 24-hour window ($\epsilon_{\text{daily}} = 5.0$) with **Graceful Privacy Degradation**.
+   - *Operational Rationale*: In high-tempo defense operations, completely blinding a battalion commander by hard-blocking readiness queries (`HTTP 429`) during an active mission or crisis introduces severe operational risk.
+   - *Mechanics*: When the daily budget is spent, the system does not refuse the query; instead, it automatically halves $\epsilon$ (doubling the Laplace noise variance) and flags `"dp_budget_status": "BUDGET_EXHAUSTED_EXTRA_NOISE"`. This actively destroys mathematical reconstruction fidelity while preserving directional macro-trends for command awareness. For installations requiring a zero-tolerance hard cutoff, configuring `DP_STRICT_ENFORCEMENT=true` immediately switches to query rejection.
+
+2. **External Trust Anchoring: Host Write Boundary**:
+   - *Design Choice*: Append-only JSON Lines ledger (`external_trust_anchor.jsonl`).
+   - *Security Boundary*: The anchor only provides true defense-grade tamper resistance once written to a system the application host itself cannot unilaterally modify or overwrite. A local file on the same filesystem can be rewritten by any attacker possessing root host access.
+   - *Demo Implementation*: Prismarine enforces strict append-only writes (never overwrites historical anchor records). Any attempt to forge or recalculate a tampered chain head creates an anchor history discrepancy detectable by diffing historical snapshots.
+   - *Production Architecture*: The append stream forwards directly to an immutable external target outside the host trust perimeter: an air-gapped defense syslog server, a hardware security module (HSM), AWS CloudTrail, or an S3 Object Lock bucket in Compliance Mode with separate write-only IAM roles.
+
+3. **IDS State Architecture**:
+   - *Design Boundary*: Single-process in-memory sliding window cache for standalone deployment and demo simplicity.
+   - *Production Path*: Horizontally scales to Redis / Valkey clusters in multi-node deployments with identical anomaly scoring and IP/cohort velocity tracking algorithms.

@@ -12,12 +12,14 @@ _HMAC_KEY = bytes.fromhex(settings.AUDIT_HMAC_KEY_HEX)
 if len(_HMAC_KEY) != 32:
     raise ValueError("AUDIT_HMAC_KEY_HEX must be 32 bytes (64 hex chars)")
 
-EXTERNAL_ANCHOR_FILE = Path(__file__).resolve().parent.parent.parent / "external_trust_anchor.json"
+EXTERNAL_ANCHOR_FILE = Path(__file__).resolve().parent.parent.parent / "external_trust_anchor.jsonl"
+LEGACY_ANCHOR_FILE = Path(__file__).resolve().parent.parent.parent / "external_trust_anchor.json"
 
 def anchor_head_hash(sequence_no: int, entry_hash: str, timestamp_iso: str) -> None:
     """
     Simulates external WORM / HSM / Off-chain Trust Anchoring.
-    Periodically records the chain head outside the primary database boundary.
+    Appends the chain head to an append-only ledger outside the primary database boundary.
+    Never overwrites historical anchors, allowing detection of full-chain rewrites via diffing.
     """
     payload = {
         "anchored_at": timestamp_iso,
@@ -26,20 +28,44 @@ def anchor_head_hash(sequence_no: int, entry_hash: str, timestamp_iso: str) -> N
         "trust_level": "EXTERNAL_WORM_ANCHOR"
     }
     try:
-        with open(EXTERNAL_ANCHOR_FILE, "w") as f:
-            json.dump(payload, f, indent=2)
+        # Strictly append-only: open with mode 'a'
+        with open(EXTERNAL_ANCHOR_FILE, "a") as f:
+            f.write(json.dumps(payload) + "\n")
     except Exception as e:
-        print(f"Warning: Failed to write external trust anchor: {e}")
+        print(f"Warning: Failed to append external trust anchor: {e}")
 
 def get_external_anchor() -> Optional[Dict[str, Any]]:
-    """Retrieves the latest external anchor if present."""
+    """Retrieves the latest external anchor from the append-only ledger if present."""
     if EXTERNAL_ANCHOR_FILE.exists():
         try:
             with open(EXTERNAL_ANCHOR_FILE, "r") as f:
+                lines = [line.strip() for line in f if line.strip()]
+                if lines:
+                    return json.loads(lines[-1])
+        except Exception:
+            pass
+            
+    # Legacy fallback if jsonl not yet written
+    if LEGACY_ANCHOR_FILE.exists():
+        try:
+            with open(LEGACY_ANCHOR_FILE, "r") as f:
                 return json.load(f)
         except Exception:
             return None
     return None
+
+def get_external_anchor_history() -> list[Dict[str, Any]]:
+    """Returns the full historical append-only anchor log for forensic diffing."""
+    anchors = []
+    if EXTERNAL_ANCHOR_FILE.exists():
+        try:
+            with open(EXTERNAL_ANCHOR_FILE, "r") as f:
+                for line in f:
+                    if line.strip():
+                        anchors.append(json.loads(line.strip()))
+        except Exception:
+            pass
+    return anchors
 
 def append_audit_entry(
     db: Session,
