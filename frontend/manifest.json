@@ -1,0 +1,21 @@
+{
+  "name": "Prismarine: Defense Personnel Stress & Welfare Monitoring Platform",
+  "short_name": "Prismarine",
+  "description": "Zero-Trust Privacy-Preserving Mental Health & Stress Monitoring System for Indian Armed Forces & CAPF",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#020617",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "/static/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

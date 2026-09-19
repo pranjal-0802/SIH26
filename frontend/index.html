@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PRISMARINE | Zero-Trust Defense Welfare & Behavioral Analytics</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="manifest" href="/static/manifest.json">
+  <meta name="theme-color" content="#0f172a">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header class="app-header">
+    <div class="brand-container">
+      <div class="insignia-badge">💎</div>
+      <div>
+        <h1 class="brand-title">PRISMARINE <span style="font-weight: 400; font-size: 0.9rem; color: var(--accent-cyan);">| प्रिज़्मरीन</span></h1>
+        <div class="brand-subtitle">AI Personnel Stress & Welfare Monitoring System (CAPF & Armed Forces)</div>
+      </div>
+    </div>
+
+    <div class="system-badges">
+      <span class="badge badge-green">● Column AES-256-GCM Active</span>
+      <span class="badge badge-cyan">k-Anonymity (k≥5) Guard</span>
+      <span class="badge badge-amber">Game-Theoretic Alert Engine</span>
+      <span class="badge badge-crimson">Access-Pattern IDS Active</span>
+      <span class="badge badge-purple" id="audit-integrity-badge">HMAC-SHA256 Anchor Synced</span>
+    </div>
+  </header>
+
+  <!-- Narrative Philosophy Sub-Bar -->
+  <div style="background: rgba(6, 182, 212, 0.05); border-bottom: 1px solid var(--border-color); padding: 0.4rem 1.5rem; font-size: 0.75rem; color: var(--text-muted); font-style: italic;">
+    "Formed under sustained pressure, structurally layered, and defined by clarity rather than opacity." — Built like a defense system, not an HR tool.
+  </div>
+
+  <!-- Quick Persona Switcher Bar (Hackathon Judge Walkthrough) -->
+  <nav class="persona-nav-bar">
+    <div class="role-tabs">
+      <button class="role-tab-btn active" data-role="personnel" onclick="switchRole('personnel')">
+        <span>👤</span> Personnel PWA (Rajesh Kumar)
+      </button>
+      <button class="role-tab-btn" data-role="welfare" onclick="switchRole('welfare')">
+        <span>🩺</span> Welfare Officer Console (104-CRPF)
+      </button>
+      <button class="role-tab-btn" data-role="commander" onclick="switchRole('commander')">
+        <span>🎖️</span> Commander Strategic View (Aggregates)
+      </button>
+      <button class="role-tab-btn" data-role="admin" onclick="switchRole('admin')">
+        <span>🛡️</span> Security Operations & IDS
+      </button>
+    </div>
+
+    <div class="demo-action-buttons">
+      <button class="btn-demo-trigger" onclick="triggerRogueQuery()">
+        ⚡ Simulate Rogue Officer Attack
+      </button>
+      <button class="btn-demo-tamper" onclick="simulateTampering()">
+        ⚡ Simulate Log Tampering
+      </button>
+      <button class="btn-primary" style="padding: 0.4rem 0.75rem; font-size: 0.75rem;" onclick="restoreChain()">
+        🔄 Restore Chain
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Content Container -->
+  <main class="main-content">
+
+    <!-- ======================================================== -->
+    <!-- VIEW 1: PERSONNEL SELF-ASSESSMENT PWA                    -->
+    <!-- ======================================================== -->
+    <section id="view-personnel" class="view-section active">
+      <div class="grid-2">
+        
+        <!-- Check-in Form -->
+        <div class="card">
+          <div class="card-title">
+            <span>📝</span> Daily Voluntary Wellness Check-in
+            <span class="badge badge-cyan" style="margin-left: auto;">Pseudo ID: PX-7821</span>
+          </div>
+          <div class="card-subtitle">
+            Zero-Stigma: Real identity decoupled before telemetry storage. Life-safety crisis indicators hard-override queue delays.
+          </div>
+
+          <form id="checkin-form" onsubmit="submitCheckIn(event)">
+            
+            <div class="form-group">
+              <label class="form-label">How is your mood and mental morale today? (1: Low / Depleted — 10: High Morale)</label>
+              <div class="range-slider-container">
+                <input type="range" min="1" max="10" value="4" class="slider" id="p_mood">
+                <span class="slider-val" id="val_mood">4</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Hours of Sleep in the last 24 hours:</label>
+              <input type="number" step="0.5" min="0" max="16" value="4.0" class="form-control" id="p_sleep" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Operational & Duty Stress Rating: (1: Relaxed — 10: Extreme Strain)</label>
+              <div class="range-slider-container">
+                <input type="range" min="1" max="10" value="8" class="slider" id="p_stress">
+                <span class="slider-val" id="val_stress">8</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Standard Brief Screening (PHQ-4 score 0-12):</label>
+              <select class="form-control" id="p_phq4">
+                <option value="1">0-2: Normal / Minimal distress</option>
+                <option value="4">3-5: Mild emotional fatigue</option>
+                <option value="8" selected>6-8: Moderate strain & tension</option>
+                <option value="11">9-12: Severe fatigue / Seek informal chat</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Personal Reflection (Confidential & Encrypted):</label>
+              <textarea class="form-control" rows="3" id="p_reflection" placeholder="Describe any fatigue, deployment pressures, or family concerns. Encrypted with AES-256-GCM.">Feeling persistent fatigue after continuous night sentry duties. Eager for sanctioned casual leave.</textarea>
+            </div>
+
+            <div id="checkin-encryption-status" style="display: none; margin-bottom: 1rem;"></div>
+
+            <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">
+              🔒 Encrypt & Submit Voluntary Check-in
+            </button>
+          </form>
+        </div>
+
+        <!-- Privacy & History Column -->
+        <div>
+          <!-- Sovereign Privacy Architecture -->
+          <div class="card" style="border-left: 4px solid var(--accent-cyan);">
+            <div class="card-title">
+              <span>🛡️</span> Sovereign Privacy Architecture
+            </div>
+            <div style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">
+              <p>• <strong>Decoupled Identity:</strong> Your service number (<code style="color: var(--accent-cyan);">CRPF-104-7821</code>) is isolated in an encrypted identity vault.</p>
+              <p>• <strong>Rotating Pseudonym:</strong> Your wellness reports only reference rotating pseudonym <code style="color: var(--accent-cyan);">PX-7821</code>.</p>
+              <p>• <strong>Anti-Stigmatization Guarantee:</strong> Your commanding officer cannot see your individual ratings or name. Commanders only receive aggregated battalion summaries ($k \ge 5$).</p>
+              <p>• <strong>Crisis Hard-Override:</strong> Self-harm or acute distress signals bypass all algorithmic queues for immediate confidential medical outreach.</p>
+            </div>
+          </div>
+
+          <!-- Wellness History Table -->
+          <div class="card">
+            <div class="card-title">
+              <span>📊</span> Recent Check-in History (Self-Audit Only)
+            </div>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Mood</th>
+                  <th>Sleep</th>
+                  <th>Stress</th>
+                  <th>PHQ-4</th>
+                  <th>Security</th>
+                </tr>
+              </thead>
+              <tbody id="personnel-history-table-body">
+                <!-- Dynamically loaded -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Tactical Self-Care Widget -->
+          <div class="card">
+            <div class="card-title">
+              <span>🧘</span> Tactical Reset & Resilience Resources
+            </div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">
+              <p><strong>Box Breathing Protocol:</strong> Inhale 4s → Hold 4s → Exhale 4s → Hold 4s (Repeat 4 cycles during sentry breaks).</p>
+              <p style="margin-top: 0.5rem;"><strong>Confidential Peer Buddy Line:</strong> Speed-dial <code>*774#</code> from any tactical phone network for 24/7 peer support.</p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- VIEW 2: WELFARE OFFICER CONSOLE                          -->
+    <!-- ======================================================== -->
+    <section id="view-welfare" class="view-section">
+      
+      <!-- Top Status Banner -->
+      <div class="card" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <div class="card-title" style="margin-bottom: 0.2rem;">
+            Welfare Intervention Console — Battalion 104-CRPF
+          </div>
+          <div style="font-size: 0.8rem; color: var(--text-muted);">
+            Officer: <strong>Sub-Inspector Anita Sharma</strong> | Scope: <strong>104-CRPF Assigned Cohort Only</strong>
+          </div>
+        </div>
+        <div>
+          <span class="badge badge-amber" id="welfare-capacity-text" style="font-size: 0.8rem; padding: 0.4rem 0.8rem;">
+            Loading Capacity Constraints...
+          </span>
+        </div>
+      </div>
+
+      <!-- Prioritized Alert Table with Stateful Case Tracking -->
+      <div class="card">
+        <div class="card-title">
+          <span>🎯</span> Game-Theoretic Prioritized Alert Queue & Case Lifecycle
+          <span class="badge badge-cyan" style="margin-left: auto;">Attention Capacity (C=15)</span>
+        </div>
+        <div class="card-subtitle">
+          Ranks alerts to balance intervention gains against false-positive / stigma costs. Crisis overrides bypass queue. Resolved cases exit active queue.
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Pseudonym</th>
+                <th>Strategic Archetype</th>
+                <th>Distress Prob</th>
+                <th>Utility</th>
+                <th>Case Status</th>
+                <th>Urgency</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="welfare-alerts-body">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- VIEW 3: COMMANDER STRATEGIC DASHBOARD                    -->
+    <!-- ======================================================== -->
+    <section id="view-commander" class="view-section">
+      
+      <div class="card" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <div class="card-title">
+            Tactical Unit Readiness & Stress Heatmap
+          </div>
+          <div style="font-size: 0.8rem; color: var(--text-muted);">
+            Active Battalion: <strong id="cmd-active-battalion">104-CRPF</strong> | <span id="cmd-cohort-size">Cohort: N=15</span>
+          </div>
+        </div>
+
+        <!-- Battalion Selector to demo k-Anonymity Guard & IDOR Defense -->
+        <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Switch Cohort:</span>
+          <button class="role-tab-btn active" onclick="loadCommanderData('104-CRPF')">104-CRPF (Assigned Unit)</button>
+          <button class="btn-demo-trigger" onclick="loadCommanderData('42-BSF')">42-BSF (Triggers IDOR Block)</button>
+          <button class="btn-demo-tamper" onclick="loadCommanderData('88-ITBP')">88-ITBP (N=3, Triggers k&lt;5 Guard)</button>
+        </div>
+      </div>
+
+      <!-- IDOR Alert Notification (Hidden by default) -->
+      <div id="cmd-idor-notice" class="card" style="display: none; border-left: 4px solid var(--accent-crimson); background: rgba(239, 68, 68, 0.08);">
+        <div class="card-title" style="color: var(--accent-crimson);">
+          <span>🚨</span> Access-Pattern IDS Intercept (IDOR Attack Blocked)
+        </div>
+        <p id="cmd-idor-text" style="font-size: 0.85rem; line-height: 1.6;"></p>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">
+          Commanders are strictly restricted to their assigned unit. Cross-battalion aggregation attempts are flagged as privilege boundary probes in real time.
+        </div>
+      </div>
+
+      <!-- k-Anonymity Suppression Alert (Hidden by default) -->
+      <div id="cmd-suppression-notice" class="card" style="display: none; border-left: 4px solid var(--accent-amber); background: rgba(245, 158, 11, 0.08);">
+        <div class="card-title" style="color: var(--accent-amber);">
+          <span>🔒</span> Privacy Threshold Enforcement (k-Anonymity Guard)
+        </div>
+        <p id="cmd-suppression-text" style="font-size: 0.85rem; line-height: 1.6;"></p>
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">
+          Under Defense Welfare Privacy Directives, no commander may view aggregated statistics for cohorts under 5 members to prevent re-identification through elimination.
+        </div>
+      </div>
+
+      <!-- Main Metrics Container -->
+      <div id="cmd-metrics-container">
+        
+        <div class="grid-4" style="margin-bottom: 1.25rem;">
+          <div class="metric-box">
+            <div class="metric-title">Unit Operational Readiness</div>
+            <div class="metric-num" style="color: var(--accent-green);" id="cmd-readiness-val">--%</div>
+            <span class="badge badge-green">COMBAT READY</span>
+          </div>
+
+          <div class="metric-box">
+            <div class="metric-title">Average Stress Index</div>
+            <div class="metric-num" style="color: var(--accent-amber);" id="cmd-stress-val">--</div>
+            <span class="badge badge-amber">WITHIN TOLERANCE</span>
+          </div>
+
+          <div class="metric-box">
+            <div class="metric-title">Leave Deficit Rate</div>
+            <div class="metric-num" style="color: var(--accent-cyan);" id="cmd-leave-deficit-val">--%</div>
+            <span class="badge badge-cyan">&gt;120 Days Deployed</span>
+          </div>
+
+          <div class="metric-box">
+            <div class="metric-title">Circadian Fatigue Rate</div>
+            <div class="metric-num" style="color: var(--accent-purple);" id="cmd-fatigue-val">--%</div>
+            <span class="badge badge-purple">Night Shift Strain</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            <span>📋</span> Tactical Leadership Directives (Automated Workload Balancing)
+            <span class="badge badge-cyan" id="cmd-dp-budget" style="margin-left: auto;">DP Budget Active</span>
+          </div>
+          <ul id="cmd-directives-list" style="padding-left: 1.25rem; line-height: 1.8;">
+            <!-- Loaded dynamically -->
+          </ul>
+        </div>
+
+        <div class="card" style="border-left: 4px solid var(--accent-green);">
+          <div class="card-title">
+            <span>🛡️</span> Mathematical Zero-Snoop Guarantee
+          </div>
+          <div style="font-size: 0.85rem; color: var(--text-muted);">
+            All commander queries run strictly over aggregated groupings with Laplace differential privacy noise added. 
+            There are <strong>zero code execution paths</strong> or SQL joins that allow a commander to access individual soldier records or pseudonyms.
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- VIEW 4: SECURITY OPERATIONS & IDS COMMAND CENTER         -->
+    <!-- ======================================================== -->
+    <section id="view-admin" class="view-section">
+      
+      <div class="grid-2">
+        
+        <!-- Tamper-Evident Hash Chain -->
+        <div class="card">
+          <div class="card-title" style="display: flex; justify-content: space-between;">
+            <span>⛓️</span> HMAC-SHA256 Tamper-Evident Audit Chain
+            <button class="btn-primary" style="padding: 0.3rem 0.6rem; font-size: 0.75rem;" onclick="runChainVerification()">
+              Verify Hash Chain
+            </button>
+          </div>
+          <div class="card-subtitle">
+            Keyed with external secret held in application memory (never in DB). Validated against external WORM trust anchor.
+          </div>
+
+          <div class="log-stream" id="audit-log-stream">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+        <!-- Real-Time Access-Pattern IDS Monitor -->
+        <div class="card">
+          <div class="card-title">
+            <span>🚨</span> Access-Pattern Intrusion Detection Stream
+          </div>
+          <div class="card-subtitle">
+            Monitors queries for cross-cohort violations, IDOR attempts, abnormal velocity, and unauthorized re-identification.
+          </div>
+
+          <div id="ids-alerts-container">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Trust Architecture Callout -->
+      <div class="card" style="border-left: 4px solid var(--accent-purple);">
+        <div class="card-title">
+          <span>🏛️</span> The Defense Trust Paradigm: Infrastructure vs Data Isolation
+        </div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">
+          System administrators and IT personnel possess infrastructure management privileges but are <strong>structurally barred</strong> from reading mental health scores, reflections, or clinical surveys.
+          All clinical records are encrypted via column-level AES-256-GCM, preventing rogue DBAs or system maintainers from snooping on defense personnel.
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- MODALS                                                   -->
+  <!-- ======================================================== -->
+
+  <!-- Explainability Modal -->
+  <div id="explain-modal" class="modal-backdrop">
+    <div class="modal-window">
+      <div class="card-title" id="modal-pseudo-title">
+        Clinical Attribution Breakdown
+      </div>
+      <div style="margin-bottom: 0.75rem;">
+        <span class="badge badge-amber" id="modal-archetype">ARCHETYPE</span>
+      </div>
+      <div id="modal-rationale" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.5;"></div>
+
+      <h4 style="font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--accent-cyan);">Factor Attribution Breakdown (Explainable AI)</h4>
+      <div id="modal-attributions-list" style="margin-bottom: 1rem;"></div>
+
+      <h4 style="font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--accent-green);">Non-Punitive Welfare Directives</h4>
+      <ul id="modal-recommendations-list" style="padding-left: 1.25rem; line-height: 1.6; margin-bottom: 1rem;"></ul>
+
+      <div style="display: flex; justify-content: flex-end;">
+        <button class="btn-primary" onclick="closeModal('explain-modal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Break-Glass Emergency Re-Identification Modal -->
+  <div id="break-glass-modal" class="modal-backdrop">
+    <div class="modal-window" style="border: 2px solid var(--accent-crimson);">
+      <div class="card-title" style="color: var(--accent-crimson);">
+        <span>🚨</span> Emergency Break-Glass Re-Identification Protocol
+      </div>
+      <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
+        CRITICAL: Unmasking a pseudonym requires Step-Up TOTP MFA verification and life-safety clinical justification. This action is permanently etched into the HMAC-SHA256 audit chain.
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Target Pseudonym:</label>
+        <input type="text" class="form-control" id="break-glass-pseudo" readonly>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Emergency Justification (Clinical / Life Safety):</label>
+        <textarea class="form-control" rows="2" id="bg-justification" placeholder="e.g. Critical burnout with active suicidal ideation risk detected; immediate medical officer dispatch required.">Critical operational burnout and extreme insomnia detected; dispatching unit counselor for immediate welfare support.</textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Crisis Dispatch Ticket / Incident Code:</label>
+        <input type="text" class="form-control" id="bg-dispatch" value="MED-CRISIS-2026-09A">
+      </div>
+
+      <div id="break-glass-result" style="display: none; margin-bottom: 1rem;"></div>
+
+      <div style="display: flex; justify-content: space-between; margin-top: 1rem;">
+        <button class="btn-primary" onclick="closeModal('break-glass-modal')">Cancel</button>
+        <button class="btn-danger" onclick="executeBreakGlass()">Authorize Emergency Unmasking</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Application Script -->
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
