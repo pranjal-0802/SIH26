@@ -3,14 +3,14 @@
 
 const API_BASE = '/api/v1';
 
-// Pre-seeded credentials for seamless hackathon demonstration
+// Pre-seeded credentials for defense evaluation & live walkthrough
 const PERSONAS = {
   personnel: {
     username: 'rajesh_kumar',
     password: 'password123',
     role: 'personnel',
     displayName: 'Constable Rajesh Kumar (PX-7821)',
-    unit: '104-CRPF (Kupwara Forward Post)'
+    unit: '104-CRPF (Kupwara Forward Sentry)'
   },
   welfare: {
     username: 'welfare_sharma',
@@ -34,7 +34,7 @@ const PERSONAS = {
     totp_code: '123456',
     role: 'admin',
     displayName: 'Security Operations & Audit Officer',
-    unit: 'Central Command'
+    unit: 'Central Defense Directorate'
   }
 };
 
@@ -54,15 +54,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 function setupSliders() {
   const sliders = [
-    { id: 'p_mood', labelId: 'val_mood' },
-    { id: 'p_stress', labelId: 'val_stress' }
+    { id: 'p_mood', labelId: 'val_mood', suffix: ' / 10' },
+    { id: 'p_stress', labelId: 'val_stress', suffix: ' / 10' }
   ];
   sliders.forEach(s => {
     const el = document.getElementById(s.id);
     const lbl = document.getElementById(s.labelId);
     if (el && lbl) {
       el.addEventListener('input', () => {
-        lbl.textContent = el.value;
+        lbl.textContent = el.value + s.suffix;
       });
     }
   });
@@ -85,7 +85,7 @@ async function preAuthenticateAllRoles() {
         authTokens[key] = data.access_token;
       }
     } catch (e) {
-      console.warn('Auth pre-fetch failed for', key, e);
+      console.warn('Auth pre-fetch notice for', key, e);
     }
   }
 }
@@ -95,7 +95,7 @@ function getAuthHeader(roleKey) {
     'Authorization': `Bearer ${authTokens[roleKey] || ''}`,
     'Content-Type': 'application/json'
   };
-  // Supply step-up TOTP header for privileged operations
+  // Supply step-up TOTP verification header for privileged officers
   if (roleKey === 'welfare' || roleKey === 'commander' || roleKey === 'admin') {
     headers['X-TOTP-Code'] = '123456';
   }
@@ -105,12 +105,18 @@ function getAuthHeader(roleKey) {
 window.switchRole = async function(roleKey) {
   currentRole = roleKey;
   
-  document.querySelectorAll('.role-tab-btn').forEach(btn => {
+  // Update Segmented Control Buttons
+  document.querySelectorAll('.segment-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.role === roleKey);
   });
   
+  // Transition Workspace Section Smoothly
   document.querySelectorAll('.view-section').forEach(view => {
-    view.classList.toggle('active', view.id === `view-${roleKey}`);
+    if (view.id === `view-${roleKey}`) {
+      view.classList.add('active');
+    } else {
+      view.classList.remove('active');
+    }
   });
 
   if (roleKey === 'personnel') {
@@ -139,8 +145,8 @@ window.submitCheckIn = async function(e) {
   const statusEl = document.getElementById('checkin-encryption-status');
   statusEl.style.display = 'block';
   statusEl.innerHTML = `
-    <div style="color: var(--accent-cyan); font-size: 0.8rem; margin-bottom: 0.5rem;">
-      <span class="badge badge-cyan">AES-256-GCM Packing</span> Generating 96-bit nonce & IV...
+    <div style="background-color: rgba(2, 132, 199, 0.08); border: 1px solid rgba(2, 132, 199, 0.25); padding: 0.75rem; border-radius: 6px; font-size: 0.8rem; color: #7dd3fc;">
+      <strong>AES-256-GCM Column Packing:</strong> Generated 96-bit unique nonce and 128-bit authentication tag. Transmitting ciphertext payload...
     </div>
   `;
 
@@ -161,26 +167,34 @@ window.submitCheckIn = async function(e) {
     if (res.ok) {
       if (data.is_crisis_override) {
         statusEl.innerHTML = `
-          <div style="color: #fca5a5; font-size: 0.85rem; background: rgba(239, 68, 68, 0.15); padding: 0.5rem; border-radius: 4px; border: 1px solid var(--accent-crimson);">
-            🚨 <strong>CRISIS LIFE-SAFETY OVERRIDE ACTIVATED:</strong> Algorithmic queue bypassed. Immediate confidential support dispatched.
+          <div style="background-color: var(--status-crimson-bg); border: 1px solid rgba(239, 68, 68, 0.4); padding: 1rem; border-radius: 8px; color: #fca5a5;">
+            <div style="font-weight: 700; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.5rem;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              Immediate Life-Safety Protocol Triggered
+            </div>
+            <p style="font-size: 0.83rem; line-height: 1.5;">${data.crisis_message}</p>
+            <div style="margin-top: 0.6rem; font-size: 0.76rem; color: #fecaca;">
+              Emergency 24/7 Sarthi Helpline: <strong>14416</strong> | Tactical Medical Sentry: <strong>Channel 4-Echo</strong>
+            </div>
           </div>
         `;
-        showToast('CRISIS OVERRIDE: Priority assistance alert dispatched.');
+        showToast('Confidential Crisis Outreach Initiated.');
       } else {
         statusEl.innerHTML = `
-          <div style="color: var(--accent-green); font-size: 0.8rem;">
-            ✓ Check-in encrypted and recorded under pseudonym <strong>${data.pseudo_id}</strong>.
-            Real identity decoupled. Signed with HMAC-SHA256.
+          <div style="background-color: var(--status-emerald-bg); border: 1px solid rgba(16, 185, 129, 0.3); padding: 0.85rem; border-radius: 8px; color: #6ee7b7; font-size: 0.82rem;">
+            <strong>Check-In Confirmed & Sealed:</strong> Written to encrypted disk store under rotating pseudonym <strong>${data.pseudo_id}</strong>.
           </div>
         `;
-        showToast('Assessment encrypted & submitted.');
+        showToast('Check-in encrypted and sealed.');
       }
+
+      document.getElementById('p_reflection').value = '';
       loadPersonnelHistory();
     } else {
-      statusEl.innerHTML = `<span style="color: var(--accent-crimson)">Error: ${data.detail || 'Submission failed'}</span>`;
+      statusEl.innerHTML = `<div style="color: #f87171; font-size: 0.82rem;">Submission error: ${data.detail}</div>`;
     }
   } catch (err) {
-    statusEl.innerHTML = `<span style="color: var(--accent-crimson)">Network error during submission</span>`;
+    statusEl.innerHTML = `<div style="color: #f87171; font-size: 0.82rem;">Network connectivity error. Please retry.</div>`;
   }
 };
 
@@ -193,15 +207,22 @@ async function loadPersonnelHistory() {
       const data = await res.json();
       const tbody = document.getElementById('personnel-history-table-body');
       tbody.innerHTML = '';
-      (data.history || []).forEach(r => {
+      
+      if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">No recorded check-ins found.</td></tr>';
+        return;
+      }
+
+      data.forEach(r => {
         const tr = document.createElement('tr');
+        const timeStr = new Date(r.recorded_at).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
         tr.innerHTML = `
-          <td>${new Date(r.recorded_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
-          <td><span class="badge ${r.mood_score >= 6 ? 'badge-green' : 'badge-amber'}">${r.mood_score}/10</span></td>
+          <td>${timeStr}</td>
+          <td><span class="badge ${r.mood_score >= 6 ? 'badge-emerald' : 'badge-amber'}">${r.mood_score}/10</span></td>
           <td>${r.sleep_hours} hrs</td>
-          <td><span class="badge ${r.stress_rating > 6 ? 'badge-crimson' : 'badge-cyan'}">${r.stress_rating}/10</span></td>
+          <td><span class="badge ${r.stress_rating > 6 ? 'badge-crimson' : 'badge-neutral'}">${r.stress_rating}/10</span></td>
           <td>${r.phq4_score}/12</td>
-          <td>${r.is_crisis ? '<span class="badge badge-crimson">CRISIS FLAG</span>' : '<span class="badge badge-green">AES-256</span>'}</td>
+          <td>${r.is_crisis ? '<span class="badge badge-crimson">CRISIS OVERRIDE</span>' : '<span class="badge badge-emerald">AES-256 SEALED</span>'}</td>
         `;
         tbody.appendChild(tr);
       });
@@ -214,7 +235,7 @@ async function loadPersonnelHistory() {
 // ----------------------------------------------------
 async function loadWelfareAlerts() {
   const container = document.getElementById('welfare-alerts-body');
-  container.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted);">Evaluating game-theoretic alert ranking & case statuses...</td></tr>';
+  container.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2rem;">Evaluating game-theoretic alert ranking & case statuses...</td></tr>';
 
   try {
     const res = await fetch(`${API_BASE}/welfare/alerts?target_battalion=104-CRPF`, {
@@ -225,52 +246,75 @@ async function loadWelfareAlerts() {
       cachedAlerts = data.allocated_alerts || [];
       
       document.getElementById('welfare-capacity-text').textContent = 
-        `${data.allocated_count} / ${data.officer_capacity_c} Slots Allocated (${data.capacity_utilization_pct}% Capacity) | ${data.resolved_count || 0} Cases Handled`;
+        `Attention Capacity: ${data.allocated_count} / ${data.officer_capacity_c} Cases (${data.capacity_utilization_pct}%) | ${data.resolved_count || 0} Resolved`;
       
-      container.innerHTML = '';
-      cachedAlerts.forEach((alert) => {
-        const tr = document.createElement('tr');
+      if (cachedAlerts.length > 0) {
+        const topAlert = cachedAlerts[0];
+        document.getElementById('hero-pseudo').textContent = topAlert.pseudo_id;
+        document.getElementById('hero-utility').textContent = `+${topAlert.expected_utility}`;
+        document.getElementById('hero-distress').textContent = `${(topAlert.p_true_distress * 100).toFixed(0)}%`;
+        document.getElementById('hero-urgency').textContent = topAlert.action_urgency;
+        document.getElementById('hero-rationale-text').textContent = topAlert.strategic_rationale || 
+          `High operational hardship detected (${topAlert.operational_hardship_score || 'Elevated'}) requiring timely welfare officer outreach.`;
         
-        let archetypeBadge = 'badge-cyan';
+        const heroBadge = document.getElementById('hero-archetype-badge');
+        if (topAlert.signal_archetype === 'CRISIS_IMMEDIATE_OVERRIDE') {
+          heroBadge.className = 'badge badge-crimson';
+          heroBadge.textContent = 'CRISIS OVERRIDE';
+        } else if (topAlert.signal_archetype === 'STIGMA_MASKED_DISTRESS') {
+          heroBadge.className = 'badge badge-amber';
+          heroBadge.textContent = 'STIGMA-MASKED (UNDER-REPORTING)';
+        } else {
+          heroBadge.className = 'badge badge-crimson';
+          heroBadge.textContent = 'AUTHENTIC HIGH DISTRESS';
+        }
+      }
+
+      container.innerHTML = '';
+      cachedAlerts.forEach((alert, idx) => {
+        const tr = document.createElement('tr');
+        if (idx === 0) tr.classList.add('row-hero');
+        
+        let archetypeBadge = 'badge-neutral';
         let archetypeLabel = alert.signal_archetype;
         if (alert.signal_archetype === 'CRISIS_IMMEDIATE_OVERRIDE') {
           archetypeBadge = 'badge-crimson';
-          archetypeLabel = '🚨 CRISIS OVERRIDE';
+          archetypeLabel = 'CRISIS OVERRIDE';
         } else if (alert.signal_archetype === 'AUTHENTIC_HIGH_DISTRESS') {
           archetypeBadge = 'badge-crimson';
           archetypeLabel = 'AUTHENTIC DISTRESS';
         } else if (alert.signal_archetype === 'STIGMA_MASKED_DISTRESS') {
           archetypeBadge = 'badge-amber';
-          archetypeLabel = 'STIGMA-MASKED (UNDER-REPORTING)';
+          archetypeLabel = 'STIGMA-MASKED';
         } else if (alert.signal_archetype === 'NOISY_UNSUBSTANTIATED') {
-          archetypeBadge = 'badge-purple';
-          archetypeLabel = 'LOW CORROBORATION (NOISE)';
+          archetypeBadge = 'badge-neutral';
+          archetypeLabel = 'NOISY (LOW CORROBORATION)';
         }
 
         const caseStatus = alert.case_status || 'OPEN';
         let statusBadge = 'badge-amber';
-        if (caseStatus === 'IN_PROGRESS') statusBadge = 'badge-cyan';
-        if (caseStatus === 'RESOLVED') statusBadge = 'badge-green';
+        if (caseStatus === 'IN_PROGRESS') statusBadge = 'badge-neutral';
+        if (caseStatus === 'RESOLVED') statusBadge = 'badge-emerald';
 
         tr.innerHTML = `
-          <td><strong>#${alert.priority_rank}</strong></td>
-          <td><span class="badge badge-cyan" style="font-family: monospace;">${alert.pseudo_id}</span></td>
+          <td><strong style="color: #f8fafc;">#${alert.priority_rank}</strong></td>
+          <td><code style="color: #38bdf8; font-weight: 600;">${alert.pseudo_id}</code></td>
           <td><span class="badge ${archetypeBadge}">${archetypeLabel}</span></td>
-          <td><strong>${(alert.p_true_distress * 100).toFixed(0)}%</strong></td>
-          <td><span style="color: ${alert.expected_utility > 1.5 ? 'var(--accent-green)' : 'var(--accent-amber)'}; font-weight: 700;">+${alert.expected_utility}</span></td>
+          <td><strong style="color: ${alert.p_true_distress > 0.7 ? '#f87171' : '#fbbf24'};">${(alert.p_true_distress * 100).toFixed(0)}%</strong></td>
+          <td><span style="color: #34d399; font-weight: 700;">+${alert.expected_utility}</span></td>
           <td><span class="badge ${statusBadge}">${caseStatus}</span></td>
           <td><span class="badge ${alert.action_urgency === 'IMMEDIATE_ACTION' || alert.is_crisis ? 'badge-crimson' : 'badge-amber'}">${alert.action_urgency}</span></td>
-          <td>
-            <button class="btn-primary" style="padding: 0.2rem 0.4rem; font-size: 0.7rem;" onclick="openExplainModal('${alert.pseudo_id}')">Explain</button>
-            <button class="btn-danger" style="padding: 0.2rem 0.4rem; font-size: 0.7rem;" onclick="openBreakGlassModal('${alert.pseudo_id}')">Unmask</button>
-            <button class="btn-primary" style="padding: 0.2rem 0.4rem; font-size: 0.7rem; background: var(--accent-green);" onclick="resolveCase('${alert.case_id}')">Resolve</button>
+          <td style="text-align: right; white-space: nowrap;">
+            <button class="btn-subtle" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" onclick="openExplainModal('${alert.pseudo_id}')">Review Factors</button>
+            <button class="btn-danger" style="padding: 0.35rem 0.65rem; font-size: 0.75rem;" onclick="openBreakGlassModal('${alert.pseudo_id}')">Unmask</button>
+            <button class="btn-primary" style="padding: 0.35rem 0.65rem; font-size: 0.75rem; background-color: #059669;" onclick="resolveCase('${alert.case_id}')">Resolve</button>
           </td>
         `;
         container.appendChild(tr);
       });
     }
   } catch (err) {
-    container.innerHTML = '<tr><td colspan="8" style="color: var(--accent-crimson);">Failed to load welfare alerts</td></tr>';
+    container.innerHTML = '<tr><td colspan="8" style="color: #f87171; text-align: center; padding: 2rem;">Failed to load welfare cohort data.</td></tr>';
   }
 }
 
@@ -298,8 +342,7 @@ window.openExplainModal = function(pseudoId) {
   const alert = cachedAlerts.find(a => a.pseudo_id === pseudoId);
   if (!alert) return;
 
-  const modal = document.getElementById('explain-modal');
-  document.getElementById('modal-pseudo-title').textContent = `Clinical Attribution: ${pseudoId}`;
+  document.getElementById('modal-pseudo-title').textContent = `Clinical Attribution Breakdown • ${pseudoId}`;
   document.getElementById('modal-archetype').textContent = alert.signal_archetype;
   document.getElementById('modal-rationale').textContent = alert.strategic_rationale;
 
@@ -307,14 +350,14 @@ window.openExplainModal = function(pseudoId) {
   attrList.innerHTML = '';
   for (const [factor, pct] of Object.entries(alert.attributions || {})) {
     const item = document.createElement('div');
-    item.style.marginBottom = '0.5rem';
+    item.style.marginBottom = '0.6rem';
     item.innerHTML = `
-      <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.2rem;">
+      <div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 0.25rem; color: #cbd5e1;">
         <span>${factor}</span>
-        <strong>${pct}%</strong>
+        <strong style="color: #38bdf8;">${pct}%</strong>
       </div>
-      <div style="background: #060913; height: 6px; border-radius: 3px; overflow: hidden;">
-        <div style="background: var(--accent-cyan); width: ${pct}%; height: 100%;"></div>
+      <div style="background: #080d17; height: 6px; border-radius: 3px; overflow: hidden; border: 1px solid var(--border-subtle);">
+        <div style="background: #0284c7; width: ${pct}%; height: 100%;"></div>
       </div>
     `;
     attrList.appendChild(item);
@@ -325,22 +368,17 @@ window.openExplainModal = function(pseudoId) {
   (alert.explainability?.recommended_interventions || []).forEach(rec => {
     const li = document.createElement('li');
     li.style.marginBottom = '0.35rem';
-    li.style.fontSize = '0.8rem';
     li.textContent = rec;
     recList.appendChild(li);
   });
 
-  modal.classList.add('active');
-};
-
-window.closeModal = function(modalId) {
-  document.getElementById(modalId).classList.remove('active');
+  openModal('explain-modal');
 };
 
 window.openBreakGlassModal = function(pseudoId) {
   document.getElementById('break-glass-pseudo').value = pseudoId;
   document.getElementById('break-glass-result').style.display = 'none';
-  document.getElementById('break-glass-modal').classList.add('active');
+  openModal('break-glass-modal');
 };
 
 window.executeBreakGlass = async function() {
@@ -365,20 +403,24 @@ window.executeBreakGlass = async function() {
 
     if (res.ok) {
       resultBox.innerHTML = `
-        <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid var(--accent-green); padding: 0.75rem; border-radius: 6px;">
-          <h4 style="color: var(--accent-green); margin-bottom: 0.5rem;">Emergency Re-Identification Granted</h4>
-          <p style="font-size: 0.85rem;"><strong>Personnel Name:</strong> ${data.real_name}</p>
-          <p style="font-size: 0.85rem;"><strong>Service No:</strong> ${data.service_no}</p>
-          <p style="font-size: 0.85rem;"><strong>Rank & Station:</strong> ${data.rank} - ${data.station} (${data.company})</p>
-          <p style="font-size: 0.85rem;"><strong>Contact:</strong> ${data.phone}</p>
-          <div style="font-size: 0.75rem; color: var(--accent-amber); margin-top: 0.5rem;">
-            ⚠ Immutable Audit Sequence #${data.audit_sequence} etched into HMAC-SHA256 chain.
+        <div style="background-color: var(--status-emerald-bg); border: 1px solid rgba(16, 185, 129, 0.3); padding: 1.25rem; border-radius: 8px;">
+          <div style="color: #34d399; font-weight: 700; font-size: 0.95rem; margin-bottom: 0.6rem;">
+            Emergency Unmasking Authorized (MFA Verified)
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; font-size: 0.84rem; color: #e2e8f0;">
+            <div>Personnel Name: <strong style="color: #f8fafc;">${data.real_name}</strong></div>
+            <div>Service Number: <strong style="color: #38bdf8;">${data.service_no}</strong></div>
+            <div>Rank & Station: <strong>${data.rank} - ${data.station}</strong></div>
+            <div>Emergency Contact: <strong>${data.phone}</strong></div>
+          </div>
+          <div style="font-size: 0.76rem; color: #fbbf24; margin-top: 0.85rem; padding-top: 0.6rem; border-top: 1px solid rgba(255, 255, 255, 0.08);">
+            Permanent Audit Sequence #${data.audit_sequence} etched into HMAC-SHA256 chain and external WORM anchor.
           </div>
         </div>
       `;
       showToast(`Re-identified ${data.real_name}. Logged with step-up MFA.`);
     } else {
-      resultBox.innerHTML = `<div style="color: var(--accent-crimson);">${data.detail}</div>`;
+      resultBox.innerHTML = `<div style="color: #f87171; font-size: 0.84rem;">${data.detail}</div>`;
     }
   } catch (err) {
     alert('Re-identification request failed');
@@ -401,17 +443,18 @@ window.loadCommanderData = async function(battalionCode) {
     const metricsCard = document.getElementById('cmd-metrics-container');
     const suppressionAlert = document.getElementById('cmd-suppression-notice');
     const idorAlert = document.getElementById('cmd-idor-notice');
+    
     if (idorAlert) idorAlert.style.display = 'none';
+    if (suppressionAlert) suppressionAlert.style.display = 'none';
 
     if (res.status === 403) {
-      // IDOR intercepted by IDS!
+      // IDOR intercepted by Access-Pattern IDS!
       metricsCard.style.display = 'none';
-      suppressionAlert.style.display = 'none';
       if (idorAlert) {
         idorAlert.style.display = 'block';
         document.getElementById('cmd-idor-text').textContent = data.detail;
       }
-      showToast(`ACCESS DENIED: IDS blocked unauthorized cross-battalion query on ${battalionCode}`);
+      showToast(`SECURITY ALERT: IDS blocked cross-battalion probe on ${battalionCode}`);
       return;
     }
 
@@ -421,7 +464,6 @@ window.loadCommanderData = async function(battalionCode) {
       document.getElementById('cmd-suppression-text').textContent = data.message;
     } else {
       metricsCard.style.display = 'block';
-      suppressionAlert.style.display = 'none';
 
       const m = data.strategic_metrics;
       document.getElementById('cmd-readiness-val').textContent = `${m.unit_operational_readiness_pct}%`;
@@ -430,10 +472,9 @@ window.loadCommanderData = async function(battalionCode) {
       document.getElementById('cmd-fatigue-val').textContent = `${m.circadian_fatigue_rate_pct}%`;
       document.getElementById('cmd-cohort-size').textContent = `Cohort: N=${data.cohort_size} (k>=5 Satisfied)`;
       
-      // DP budget display
       const dpBudgetEl = document.getElementById('cmd-dp-budget');
       if (dpBudgetEl) {
-        dpBudgetEl.textContent = `DP Budget: ${data.dp_daily_budget_remaining} ε remaining / 24h (${data.dp_budget_status})`;
+        dpBudgetEl.textContent = `DP Budget: ${data.dp_daily_budget_remaining} ε remaining (${data.dp_budget_status})`;
       }
 
       const dirList = document.getElementById('cmd-directives-list');
@@ -441,7 +482,6 @@ window.loadCommanderData = async function(battalionCode) {
       (data.tactical_welfare_directives || []).forEach(d => {
         const li = document.createElement('li');
         li.style.marginBottom = '0.5rem';
-        li.style.fontSize = '0.85rem';
         li.textContent = d;
         dirList.appendChild(li);
       });
@@ -450,7 +490,7 @@ window.loadCommanderData = async function(battalionCode) {
 };
 
 // ----------------------------------------------------
-// 4. SECURITY & IDS CENTER
+// 4. SECURITY & IDS OPERATIONS CENTER
 // ----------------------------------------------------
 async function loadAuditChain() {
   try {
@@ -463,25 +503,27 @@ async function loadAuditChain() {
       stream.innerHTML = '';
 
       const st = data.integrity_status;
-      const integrityBadge = document.getElementById('audit-integrity-badge');
+      const statusLabel = document.getElementById('header-status-label');
+      const statusDot = document.getElementById('system-status-dot');
+
       if (st.valid) {
-        integrityBadge.className = 'badge badge-green';
-        integrityBadge.textContent = `HMAC VALID (${st.total_blocks} Blocks | WORM Anchor Synced)`;
+        statusDot.className = 'status-dot';
+        statusLabel.textContent = `Defense-Grade Secure • Level 4 Encryption Active`;
       } else {
-        integrityBadge.className = 'badge badge-crimson';
-        integrityBadge.textContent = `CHAIN BROKEN AT #${st.tampered_sequence}`;
+        statusDot.className = 'status-dot danger';
+        statusLabel.textContent = `INTEGRITY VIOLATION • Block #${st.tampered_sequence} Altered`;
       }
 
       data.blocks.forEach(b => {
         const div = document.createElement('div');
-        div.className = `log-entry ${b.is_anomaly ? 'anomaly' : ''}`;
+        div.className = `audit-stream-row ${b.is_anomaly ? 'anomaly' : ''}`;
         div.innerHTML = `
-          <div style="display: flex; justify-content: space-between;">
-            <span><strong>Block #${b.sequence_no}</strong> [${b.action}]</span>
-            <span style="color: var(--text-muted);">${new Date(b.timestamp_iso || b.timestamp).toLocaleTimeString()}</span>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span><strong style="color: #f8fafc;">Block #${b.sequence_no}</strong> • <span style="color: #cbd5e1;">${b.action}</span></span>
+            <span style="color: var(--text-muted); font-size: 0.72rem;">${new Date(b.timestamp_iso || b.timestamp).toLocaleTimeString()}</span>
           </div>
-          <div>Actor: <strong>${b.actor_id}</strong> (${b.actor_role}) | Scope: ${b.scope_battalion || 'GLOBAL'}</div>
-          <div class="log-hash">HMAC: ${b.entry_hash.slice(0, 24)}... | Prev: ${b.previous_hash.slice(0, 16)}...</div>
+          <div style="font-size: 0.76rem; color: var(--text-secondary);">Actor: <strong style="color: #e2e8f0;">${b.actor_id}</strong> (${b.actor_role}) | Battalion Scope: ${b.scope_battalion || 'GLOBAL'}</div>
+          <div class="audit-hash-code">HMAC: ${b.entry_hash.slice(0, 32)}... | Prev: ${b.previous_hash.slice(0, 16)}...</div>
         `;
         stream.appendChild(div);
       });
@@ -500,24 +542,24 @@ async function loadIdsAlerts() {
       container.innerHTML = '';
 
       if (data.alerts.length === 0) {
-        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.8rem;">No intrusion attempts detected. Security baseline clear.</div>';
+        container.innerHTML = '<div style="color: var(--text-muted); font-size: 0.82rem; padding: 1rem 0;">Zero unauthorized intrusion attempts recorded. Perimeter baseline nominal.</div>';
         return;
       }
 
       data.alerts.forEach(a => {
         const div = document.createElement('div');
         div.className = 'card';
-        div.style.borderLeft = '4px solid var(--accent-crimson)';
-        div.style.padding = '0.75rem';
-        div.style.marginBottom = '0.5rem';
+        div.style.borderLeft = '4px solid var(--status-crimson)';
+        div.style.padding = '1.15rem';
+        div.style.marginBottom = '0.85rem';
         div.innerHTML = `
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
-            <span class="badge badge-crimson">THREAT SCORE: ${(a.anomaly_score * 100).toFixed(0)}%</span>
-            <span style="font-size: 0.75rem; color: var(--text-muted);">${new Date(a.timestamp).toLocaleTimeString()}</span>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+            <span class="badge badge-crimson">THREAT INDEX: ${(a.anomaly_score * 100).toFixed(0)}%</span>
+            <span style="font-size: 0.74rem; color: var(--text-muted);">${new Date(a.timestamp).toLocaleTimeString()}</span>
           </div>
-          <div style="font-size: 0.85rem; font-weight: 700; color: #fca5a5;">${a.action}</div>
-          <div style="font-size: 0.8rem; color: var(--text-muted);">Actor: <strong>${a.actor_id}</strong> (${a.actor_role})</div>
-          <div style="font-size: 0.75rem; background: #060913; padding: 0.4rem; border-radius: 4px; margin-top: 0.35rem; font-family: monospace;">
+          <div style="font-size: 0.88rem; font-weight: 700; color: #fca5a5; margin-bottom: 0.2rem;">${a.action}</div>
+          <div style="font-size: 0.8rem; color: var(--text-secondary);">Actor: <strong style="color: #f1f5f9;">${a.actor_id}</strong> (${a.actor_role})</div>
+          <div style="font-size: 0.75rem; background: #060911; border: 1px solid var(--border-subtle); padding: 0.5rem; border-radius: 4px; margin-top: 0.5rem; font-family: var(--font-mono); color: #cbd5e1;">
             ${a.details}
           </div>
         `;
@@ -612,13 +654,29 @@ window.restoreChain = async function() {
   }
 };
 
+// Modal helpers
+window.openModal = function(modalId) {
+  const el = document.getElementById(modalId);
+  if (el) el.classList.add('active');
+};
+
+window.closeModal = function(modalId) {
+  const el = document.getElementById(modalId);
+  if (el) el.classList.remove('active');
+};
+
 function showToast(msg) {
   const container = document.getElementById('toast-container');
   const toast = document.createElement('div');
-  toast.className = 'toast';
-  toast.innerHTML = `<span style="color: var(--accent-cyan);">⚡</span> ${msg}`;
+  toast.className = 'tactical-toast';
+  toast.innerHTML = `
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+    <span>${msg}</span>
+  `;
   container.appendChild(toast);
   setTimeout(() => {
-    toast.remove();
+    toast.style.opacity = '0';
+    toast.style.transition = 'opacity 0.25s ease';
+    setTimeout(() => toast.remove(), 250);
   }, 4000);
 }
