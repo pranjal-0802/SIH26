@@ -554,11 +554,20 @@ window.triggerRogueQuery = async function() {
       method: 'POST',
       headers: getAuthHeader('admin')
     });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      if (res.status === 404) {
+        alert('Demo triggers are disabled when DEMO_MODE=false in your .env');
+      } else {
+        alert(err.detail || `Trigger failed with status ${res.status}`);
+      }
+      return;
+    }
     const data = await res.json();
     showToast(`INSIDER THREAT INTERCEPTED: ${data.actor} blocked by IDS.`);
     switchRole('admin');
   } catch (e) {
-    alert('Demo triggers are disabled when DEMO_MODE=false');
+    alert(`Connection error: ${e.message}`);
   }
 };
 
@@ -568,11 +577,20 @@ window.simulateTampering = async function() {
       method: 'POST',
       headers: getAuthHeader('admin')
     });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      if (res.status === 404) {
+        alert('Demo triggers are disabled when DEMO_MODE=false in your .env');
+      } else {
+        alert(err.detail || `Tampering failed with status ${res.status}`);
+      }
+      return;
+    }
     const data = await res.json();
     showToast('DATABASE TAMPERING SIMULATED: HMAC signature failed!');
     switchRole('admin');
   } catch (e) {
-    alert('Tampering simulation failed');
+    alert(`Tampering simulation error: ${e.message}`);
   }
 };
 
@@ -582,9 +600,16 @@ window.restoreChain = async function() {
       method: 'POST',
       headers: getAuthHeader('admin')
     });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      alert(err.detail || `Restore failed with status ${res.status}`);
+      return;
+    }
     showToast('HMAC Audit Chain restored.');
     switchRole('admin');
-  } catch (e) {}
+  } catch (e) {
+    alert(`Restore error: ${e.message}`);
+  }
 };
 
 function showToast(msg) {
