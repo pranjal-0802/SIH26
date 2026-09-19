@@ -408,7 +408,7 @@
     <!-- ======================================================== -->
     <section id="view-commander" class="view-section">
       
-      <!-- Commander Header & Interactive Cohort Selector -->
+      <!-- Commander Header -->
       <div class="card" style="margin-bottom: 1.5rem;">
         <div class="card-header-row">
           <div>
@@ -419,24 +419,11 @@
               Commanding Officer: <strong style="color: #f1f5f9;" id="cmd-officer-name">Commandant Vikramaditya Singh</strong> | Unit: <span id="cmd-active-battalion" style="color: #38bdf8; font-weight: 600;">104-CRPF</span>
             </div>
           </div>
-
-          <!-- Cohort Query Buttons (Demonstrating Perimeter Defenses) -->
-          <div class="cohort-query-group">
-            <span class="cohort-query-label">Operational Cohort:</span>
-            <button class="btn-cohort-query assigned active" id="cmd-btn-104" onclick="loadCommanderData('104-CRPF')">
+          <div>
+            <span class="badge badge-emerald" style="font-size: 0.78rem; padding: 0.4rem 0.85rem;">
               <span class="dot-indicator green"></span>
-              104-CRPF (Assigned Unit)
-            </button>
-            <button class="btn-cohort-query boundary-test" id="cmd-btn-42" onclick="loadCommanderData('42-BSF')">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-              42-BSF
-              <span class="query-badge boundary">Restricted • Boundary Test</span>
-            </button>
-            <button class="btn-cohort-query k-test" id="cmd-btn-88" onclick="loadCommanderData('88-ITBP')">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-              88-ITBP
-              <span class="query-badge k-guard">N=3 • k &lt; 5 Guard Test</span>
-            </button>
+              Assigned Cohort: 104-CRPF • k &ge; 5 Satisfied
+            </span>
           </div>
         </div>
       </div>
@@ -451,6 +438,11 @@
         <div class="intercept-footer">
           Access-Pattern IDS: Command privilege boundary enforced. Your query attempt is permanently etched into the HMAC-SHA256 audit log.
         </div>
+        <div style="margin-top: 0.85rem;">
+          <button class="btn-subtle" style="font-size: 0.78rem; padding: 0.4rem 0.85rem;" onclick="loadCommanderData('104-CRPF')">
+            Return to Assigned Unit (104-CRPF)
+          </button>
+        </div>
       </div>
 
       <!-- k-Anonymity Suppression Panel (Displays on small cohort) -->
@@ -462,6 +454,11 @@
         <div class="intercept-body" id="cmd-suppression-text"></div>
         <div class="intercept-footer">
           Under Defense Welfare Privacy Directives, you cannot view statistics for cohorts with fewer than 5 personnel to eliminate deductive re-identification.
+        </div>
+        <div style="margin-top: 0.85rem;">
+          <button class="btn-subtle" style="font-size: 0.78rem; padding: 0.4rem 0.85rem;" onclick="loadCommanderData('104-CRPF')">
+            Return to Assigned Unit (104-CRPF)
+          </button>
         </div>
       </div>
 
@@ -672,6 +669,19 @@
           </div>
           <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5;">
             You can restore original log parameters and re-verify HMAC signatures against the external trust anchor to confirm baseline integrity.
+          </div>
+        </div>
+
+        <!-- Scenario 4: Privacy Guard & Small Cohort Suppression -->
+        <div class="card" style="margin-bottom: 0; background-color: var(--bg-surface-0);">
+          <div class="card-header-row">
+            <div style="font-weight: 600; font-size: 0.92rem; color: #f1f5f9;">Scenario D: Privacy Guard & Small Cohort Suppression (k &lt; 5)</div>
+            <button class="btn-simulation-trigger warning" onclick="simulateKAnonymityGuard(); closeModal('simulation-modal');">
+              Execute Scenario D
+            </button>
+          </div>
+          <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5;">
+            You can test the mathematical privacy threshold on a small cohort (88-ITBP, N=3). Notice how aggregates are suppressed to eliminate deductive re-identification even for authorized inspection.
           </div>
         </div>
 

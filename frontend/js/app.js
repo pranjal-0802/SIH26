@@ -640,15 +640,9 @@ window.executeBreakGlass = async function() {
 // ----------------------------------------------------
 // 3. COMMANDER STRATEGIC VIEW (k-ANONYMIZED)
 // ----------------------------------------------------
-window.loadCommanderData = async function(battalionCode) {
+window.loadCommanderData = async function(battalionCode = '104-CRPF') {
   const badge = document.getElementById('cmd-active-battalion');
   if (badge) badge.textContent = battalionCode;
-
-  // Update cohort test buttons active state
-  document.querySelectorAll('.btn-cohort-query').forEach(btn => btn.classList.remove('active'));
-  if (battalionCode === '104-CRPF') document.getElementById('cmd-btn-104')?.classList.add('active');
-  if (battalionCode === '42-BSF') document.getElementById('cmd-btn-42')?.classList.add('active');
-  if (battalionCode === '88-ITBP') document.getElementById('cmd-btn-88')?.classList.add('active');
 
   const officerEl = document.getElementById('cmd-officer-name');
   if (officerEl) {
@@ -934,6 +928,11 @@ window.restoreChain = async function() {
   } catch (e) {
     showToast(`Restore error: ${e.message}`);
   }
+};
+
+window.simulateKAnonymityGuard = function() {
+  switchRole('commander', true);
+  loadCommanderData('88-ITBP');
 };
 
 // Modal helpers
