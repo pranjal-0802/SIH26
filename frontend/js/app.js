@@ -442,9 +442,27 @@ async function loadWelfareAlerts() {
           document.getElementById('hero-distress').style.color = '#38bdf8';
           document.getElementById('hero-urgency').style.color = '#cbd5e1';
         }
+      } else {
+        const heroCard = document.getElementById('welfare-hero-card');
+        if (heroCard) heroCard.classList.remove('is-crisis', 'is-stigma-masked');
+        document.getElementById('hero-pseudo').textContent = 'NOMINAL';
+        document.getElementById('hero-utility').textContent = '+0.000';
+        document.getElementById('hero-distress').textContent = '0%';
+        document.getElementById('hero-urgency').textContent = 'MONITORING';
+        document.getElementById('hero-rationale-text').textContent = 'All battalion alert cases resolved or below actionable utility threshold. Cohort equilibrium nominal.';
+        const heroBadge = document.getElementById('hero-archetype-badge');
+        if (heroBadge) {
+          heroBadge.className = 'badge badge-emerald';
+          heroBadge.textContent = 'NOMINAL EQUILIBRIUM';
+        }
       }
 
       container.innerHTML = '';
+      if (cachedAlerts.length === 0) {
+        container.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-muted); padding: 2rem;">No active alerts in current cohort allocation. All cases nominal or resolved.</td></tr>';
+        return;
+      }
+
       cachedAlerts.forEach((alert, idx) => {
         const tr = document.createElement('tr');
         if (idx === 0) {
@@ -493,9 +511,12 @@ async function loadWelfareAlerts() {
         `;
         container.appendChild(tr);
       });
+    } else {
+      const errData = await res.json().catch(() => ({}));
+      container.innerHTML = `<tr><td colspan="8" style="color: #f87171; text-align: center; padding: 2rem;">Failed to load welfare cohort data (HTTP ${res.status}): ${errData.detail || 'Service unavailable'}.</td></tr>`;
     }
   } catch (err) {
-    container.innerHTML = '<tr><td colspan="8" style="color: #f87171; text-align: center; padding: 2rem;">Failed to load welfare cohort data.</td></tr>';
+    container.innerHTML = '<tr><td colspan="8" style="color: #f87171; text-align: center; padding: 2rem;">Network error: Failed to connect to welfare analytics service.</td></tr>';
   }
 }
 

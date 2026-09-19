@@ -21,6 +21,21 @@ def seed_database(bind_engine=None, session_factory=None):
     # Create all tables
     Base.metadata.create_all(bind=target_engine)
     
+    # Auto-migrate legacy columns if present in SQLite
+    try:
+        with target_engine.connect() as conn:
+            from sqlalchemy import text
+            res = conn.execute(text("PRAGMA table_info(welfare_alert_cases)"))
+            cols = [r[1] for r in res.fetchall()]
+            if "action_taken" in cols and "encrypted_action_taken" not in cols:
+                conn.execute(text("ALTER TABLE welfare_alert_cases RENAME COLUMN action_taken TO encrypted_action_taken"))
+                conn.commit()
+            if "clinical_notes" in cols and "encrypted_clinical_notes" not in cols:
+                conn.execute(text("ALTER TABLE welfare_alert_cases RENAME COLUMN clinical_notes TO encrypted_clinical_notes"))
+                conn.commit()
+    except Exception:
+        pass
+    
     db: Session = target_session_factory()
     try:
         # Check if already seeded
