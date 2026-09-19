@@ -326,15 +326,22 @@ body {
 
 .view-section {
   display: none;
-  opacity: 0;
-  transform: translateY(6px);
-  transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .view-section.active {
   display: block;
-  opacity: 1;
-  transform: translateY(0);
+  animation: viewFadeSlide 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes viewFadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ======================================================== */
@@ -768,7 +775,11 @@ body {
   padding: 1.75rem;
   margin-bottom: 1.75rem;
   display: none;
-  animation: fadeIn 0.25s ease;
+}
+
+.intercept-panel.visible {
+  display: block;
+  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .intercept-panel.danger {
@@ -955,6 +966,11 @@ body {
 .theme-personnel .card {
   background-color: #121927;
   border-color: rgba(45, 212, 191, 0.15);
+}
+
+.theme-personnel .card.history-card {
+  border-color: var(--border-subtle);
+  background-color: var(--bg-surface-0);
 }
 
 .theme-personnel .slider-group {
@@ -1163,8 +1179,10 @@ body {
 }
 
 .btn-cohort-query.assigned.active {
-  background-color: rgba(56, 189, 248, 0.12);
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.15);
+  background-color: rgba(56, 189, 248, 0.22);
+  border-color: #38bdf8;
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
 }
 
 .btn-cohort-query.boundary-test {
@@ -1178,6 +1196,13 @@ body {
   border-color: var(--status-crimson);
 }
 
+.btn-cohort-query.boundary-test.active {
+  background-color: rgba(239, 68, 68, 0.18);
+  border-color: #ef4444;
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.25);
+}
+
 .btn-cohort-query.k-test {
   border: 1px dashed rgba(245, 158, 11, 0.45);
   color: #fcd34d;
@@ -1187,6 +1212,13 @@ body {
 .btn-cohort-query.k-test:hover {
   background-color: rgba(245, 158, 11, 0.12);
   border-color: var(--status-amber);
+}
+
+.btn-cohort-query.k-test.active {
+  background-color: rgba(245, 158, 11, 0.18);
+  border-color: #f59e0b;
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.25);
 }
 
 .query-badge {

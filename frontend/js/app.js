@@ -54,29 +54,54 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-function startLiveClock() {
-  function updateClock() {
-    const clockEl = document.getElementById('live-tactical-clock');
-    const quoteEl = document.getElementById('narrative-quote-box');
-    if (!clockEl) return;
-    
-    const now = new Date();
-    if (currentRole === 'personnel') {
-      const timeStr = now.toLocaleTimeString('en-IN', { hour12: false });
-      clockEl.textContent = `${timeStr} • CONFIDENTIAL CLIENT ENCLAVE`;
-      if (quoteEl) {
-        quoteEl.innerHTML = 'Your responses are confidential. Your commanding officer cannot see this screen or your individual entries.';
-      }
-    } else {
-      const istStr = now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour12: false });
-      clockEl.textContent = `${istStr} IST • 104-CRPF (KUPWARA SECTOR)`;
-      if (quoteEl) {
-        quoteEl.innerHTML = '<strong>Mineral Philosophy:</strong> Formed under sustained pressure, structurally layered, and defined by clarity rather than opacity.';
-      }
+// Centralized IST Time Formatting (All clocks & timestamps strictly IST)
+function getISTTimeString(date = new Date(), includeSeconds = true) {
+  const d = typeof date === 'string' || typeof date === 'number' ? new Date(date) : date;
+  if (isNaN(d.getTime())) return String(date);
+  return d.toLocaleTimeString('en-IN', {
+    timeZone: 'Asia/Kolkata',
+    hour12: false,
+    hour: '2-digit',
+    minute: '2-digit',
+    second: includeSeconds ? '2-digit' : undefined
+  });
+}
+
+function getISTDateTimeString(date) {
+  const d = typeof date === 'string' || typeof date === 'number' ? new Date(date) : date;
+  if (isNaN(d.getTime())) return String(date);
+  return d.toLocaleString('en-IN', {
+    timeZone: 'Asia/Kolkata',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  });
+}
+
+function updateLiveClock() {
+  const clockEl = document.getElementById('live-tactical-clock');
+  const quoteEl = document.getElementById('narrative-quote-box');
+  if (!clockEl) return;
+  
+  const istTimeStr = getISTTimeString(new Date(), true);
+  if (currentRole === 'personnel') {
+    clockEl.textContent = `${istTimeStr} IST • CONFIDENTIAL CLIENT ENCLAVE`;
+    if (quoteEl) {
+      quoteEl.innerHTML = '<strong>Client Enclave:</strong> Your responses are confidential. Your commanding officer cannot see this screen or your individual entries.';
+    }
+  } else {
+    clockEl.textContent = `${istTimeStr} IST • 104-CRPF (KUPWARA SECTOR)`;
+    if (quoteEl) {
+      quoteEl.innerHTML = '<strong>Mineral Philosophy:</strong> Formed under sustained pressure, structurally layered, and defined by clarity rather than opacity.';
     }
   }
-  updateClock();
-  setInterval(updateClock, 1000);
+}
+
+function startLiveClock() {
+  updateLiveClock();
+  setInterval(updateLiveClock, 1000);
 }
 
 function setupSliders() {
@@ -243,24 +268,8 @@ window.switchRole = async function(roleKey, skipAuth = false) {
       }
     });
 
-    // Update Live Clock / Narrative
-    const clockEl = document.getElementById('live-tactical-clock');
-    const quoteEl = document.getElementById('narrative-quote-box');
-    if (clockEl) {
-      const now = new Date();
-      if (roleKey === 'personnel') {
-        clockEl.textContent = `${now.toLocaleTimeString('en-IN', { hour12: false })} • CONFIDENTIAL CLIENT ENCLAVE`;
-        if (quoteEl) {
-          quoteEl.innerHTML = 'Your responses are confidential. Your commanding officer cannot see this screen or your individual entries.';
-        }
-      } else {
-        const istStr = now.toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata', hour12: false });
-        clockEl.textContent = `${istStr} IST • 104-CRPF (KUPWARA SECTOR)`;
-        if (quoteEl) {
-          quoteEl.innerHTML = '<strong>Mineral Philosophy:</strong> Formed under sustained pressure, structurally layered, and defined by clarity rather than opacity.';
-        }
-      }
-    }
+    // Update Live Clock / Narrative (Strictly IST)
+    updateLiveClock();
 
     if (roleKey === 'personnel') {
       loadPersonnelHistory();
@@ -367,14 +376,7 @@ async function loadPersonnelHistory() {
 
       records.forEach(r => {
         const tr = document.createElement('tr');
-        const d = new Date(r.recorded_at);
-        const timeStr = isNaN(d.getTime()) ? r.recorded_at : d.toLocaleString([], { 
-          month: 'short', 
-          day: 'numeric', 
-          hour: '2-digit', 
-          minute: '2-digit',
-          hour12: false 
-        });
+        const timeStr = `${getISTDateTimeString(r.recorded_at)} IST`;
         tr.innerHTML = `
           <td><strong style="color: #cbd5e1;">${timeStr}</strong></td>
           <td><span class="badge ${r.mood_score >= 6 ? 'badge-emerald' : 'badge-amber'}">${r.mood_score}/10</span></td>
@@ -650,14 +652,14 @@ window.loadCommanderData = async function(battalionCode) {
     const suppressionAlert = document.getElementById('cmd-suppression-notice');
     const idorAlert = document.getElementById('cmd-idor-notice');
     
-    if (idorAlert) idorAlert.style.display = 'none';
-    if (suppressionAlert) suppressionAlert.style.display = 'none';
+    if (idorAlert) idorAlert.classList.remove('visible');
+    if (suppressionAlert) suppressionAlert.classList.remove('visible');
 
     if (res.status === 403) {
       // IDOR intercepted by Access-Pattern IDS!
       metricsCard.style.display = 'none';
       if (idorAlert) {
-        idorAlert.style.display = 'block';
+        idorAlert.classList.add('visible');
         document.getElementById('cmd-idor-text').textContent = data.detail;
       }
       showToast(`SECURITY ALERT: IDS blocked cross-battalion probe on ${battalionCode}`);
@@ -666,8 +668,10 @@ window.loadCommanderData = async function(battalionCode) {
 
     if (data.status === 'SUPPRESSED') {
       metricsCard.style.display = 'none';
-      suppressionAlert.style.display = 'block';
-      document.getElementById('cmd-suppression-text').textContent = data.message;
+      if (suppressionAlert) {
+        suppressionAlert.classList.add('visible');
+        document.getElementById('cmd-suppression-text').textContent = data.message;
+      }
     } else {
       metricsCard.style.display = 'block';
 
@@ -763,7 +767,7 @@ async function loadAuditChain() {
         div.innerHTML = `
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <span><strong style="color: #f8fafc;">Block #${b.sequence_no}</strong> • <span style="color: #cbd5e1;">${b.action}</span>${badgeHtml}</span>
-            <span style="color: var(--text-muted); font-size: 0.72rem;">${new Date(b.timestamp_iso || b.timestamp).toLocaleTimeString()}</span>
+            <span style="color: var(--text-muted); font-size: 0.72rem;">${getISTTimeString(b.timestamp_iso || b.timestamp, true)} IST</span>
           </div>
           <div style="font-size: 0.76rem; color: var(--text-secondary);">Actor: <strong style="color: #e2e8f0;">${b.actor_id}</strong> (${b.actor_role}) | Battalion Scope: ${b.scope_battalion || 'GLOBAL'}</div>
           ${detailsSnippet ? `<div style="font-size: 0.72rem; color: #94a3b8; font-family: var(--font-mono); background: rgba(0,0,0,0.3); padding: 0.35rem 0.5rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.06);">${detailsSnippet}</div>` : ''}
@@ -799,7 +803,7 @@ async function loadIdsAlerts() {
         div.innerHTML = `
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
             <span class="badge badge-crimson">THREAT INDEX: ${(a.anomaly_score * 100).toFixed(0)}%</span>
-            <span style="font-size: 0.74rem; color: var(--text-muted);">${new Date(a.timestamp).toLocaleTimeString()}</span>
+            <span style="font-size: 0.74rem; color: var(--text-muted);">${getISTTimeString(a.timestamp, true)} IST</span>
           </div>
           <div style="font-size: 0.88rem; font-weight: 700; color: #fca5a5; margin-bottom: 0.2rem;">${a.action}</div>
           <div style="font-size: 0.8rem; color: var(--text-secondary);">Actor: <strong style="color: #f1f5f9;">${a.actor_id}</strong> (${a.actor_role})</div>
