@@ -212,6 +212,14 @@ body {
   align-items: center;
   gap: 1.5rem;
   overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.command-nav-bar::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 /* Apple-style Segmented Role Control */
