@@ -76,3 +76,14 @@ def test_commander_endpoint_k_anonymity_suppression(client):
     assert res_small.json()["status"] == "SUPPRESSED"
     assert "below the minimum privacy threshold" in res_small.json()["message"]
     assert res_small.json()["metrics"] is None
+
+    # 3. Query small cohort (88-ITBP) via Corps Commander (CORPS_COMMAND clearance)
+    token_corps = create_access_token(subject="cmd_corps", role="commander", assigned_battalion="CORPS_COMMAND")
+    res_corps = client.get(
+        "/api/v1/commander/cohort-readiness?target_battalion=88-ITBP",
+        headers={"Authorization": f"Bearer {token_corps}", "X-TOTP-Code": "123456"}
+    )
+    assert res_corps.status_code == 200
+    assert res_corps.json()["status"] == "SUPPRESSED"
+    assert "below the minimum privacy threshold" in res_corps.json()["message"]
+    assert res_corps.json()["metrics"] is None

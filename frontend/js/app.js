@@ -28,6 +28,14 @@ const PERSONAS = {
     displayName: 'Commandant Vikramaditya Singh',
     unit: '104-CRPF'
   },
+  commander_corps: {
+    username: 'cmd_corps',
+    password: 'password123',
+    totp_code: '123456',
+    role: 'commander',
+    displayName: 'Corps Commander (Multi-Battalion Authorized)',
+    unit: 'CORPS_COMMAND'
+  },
   admin: {
     username: 'sec_admin',
     password: 'password123',
@@ -148,7 +156,7 @@ function getAuthHeader(roleKey) {
     'Content-Type': 'application/json'
   };
   // Supply step-up TOTP verification header for privileged officers
-  if (roleKey === 'welfare' || roleKey === 'commander' || roleKey === 'admin') {
+  if (roleKey === 'welfare' || roleKey === 'commander' || roleKey === 'commander_corps' || roleKey === 'admin') {
     headers['X-TOTP-Code'] = '123456';
   }
   return headers;
@@ -642,9 +650,23 @@ window.loadCommanderData = async function(battalionCode) {
   if (battalionCode === '42-BSF') document.getElementById('cmd-btn-42')?.classList.add('active');
   if (battalionCode === '88-ITBP') document.getElementById('cmd-btn-88')?.classList.add('active');
 
+  const officerEl = document.getElementById('cmd-officer-name');
+  if (officerEl) {
+    if (battalionCode === '88-ITBP') {
+      officerEl.textContent = 'Corps Commander (Multi-Battalion Authorized)';
+    } else {
+      officerEl.textContent = 'Commandant Vikramaditya Singh';
+    }
+  }
+
+  // When testing 88-ITBP (k < 5 guard): Corps Command clearance (cmd_corps) is multi-battalion authorized,
+  // passing Access-Pattern IDS perimeter checks to demonstrate mathematical k < 5 privacy suppression.
+  // When testing 42-BSF: Unit commander (cmd_singh) is scoped to 104-CRPF, triggering the IDS boundary intercept.
+  const authKey = (battalionCode === '88-ITBP') ? 'commander_corps' : 'commander';
+
   try {
     const res = await fetch(`${API_BASE}/commander/cohort-readiness?target_battalion=${battalionCode}`, {
-      headers: getAuthHeader('commander')
+      headers: getAuthHeader(authKey)
     });
     const data = await res.json();
 
@@ -672,6 +694,7 @@ window.loadCommanderData = async function(battalionCode) {
         suppressionAlert.classList.add('visible');
         document.getElementById('cmd-suppression-text').textContent = data.message;
       }
+      showToast(`PRIVACY ENFORCEMENT: Aggregated metrics suppressed for ${battalionCode} (k < 5)`);
     } else {
       metricsCard.style.display = 'block';
 

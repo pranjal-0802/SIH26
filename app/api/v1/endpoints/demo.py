@@ -86,6 +86,14 @@ def get_demo_personas():
                 "username": "welfare_rogue",
                 "battalion": "42-BSF",
                 "story_arc": "INSIDER THREAT: Assigned to 42-BSF, attempts unauthorized snoop into 104-CRPF. Caught instantly by Access-Pattern IDS."
+            },
+            {
+                "id": "persona_8",
+                "role": "commander",
+                "name": "Corps Commander (Multi-Battalion Authorized)",
+                "username": "cmd_corps",
+                "battalion": "CORPS_COMMAND",
+                "story_arc": "CORPS COMMANDER: Multi-battalion inspection scope. Demonstrates that even Corps-level authority cannot bypass mathematical k-anonymity (k < 5) suppression."
             }
         ]
     }
