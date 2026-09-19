@@ -177,8 +177,8 @@ function showAuthHandshake(roleKey, onComplete) {
         overlay.classList.remove('active');
         overlay.onclick = null;
         onComplete();
-      }, 350);
-    }, 450);
+      }, 450);
+    }, 550);
   } else {
     roleDesc.textContent = 'Privileged Operational Command (Step-Up TOTP Required)';
     totpContainer.style.display = 'flex';
@@ -202,7 +202,7 @@ function showAuthHandshake(roleKey, onComplete) {
           box.classList.add('filled');
         }
         digitIdx++;
-        authAnimationTimeout = setTimeout(stepDigit, 80);
+        authAnimationTimeout = setTimeout(stepDigit, 200);
       } else {
         statusBar.className = 'auth-status-bar success';
         spinner.style.display = 'none';
@@ -217,11 +217,11 @@ function showAuthHandshake(roleKey, onComplete) {
           overlay.classList.remove('active');
           overlay.onclick = null;
           onComplete();
-        }, 400);
+        }, 500);
       }
     }
 
-    authAnimationTimeout = setTimeout(stepDigit, 220);
+    authAnimationTimeout = setTimeout(stepDigit, 320);
   }
 }
 
@@ -356,20 +356,29 @@ async function loadPersonnelHistory() {
       headers: getAuthHeader('personnel')
     });
     if (res.ok) {
-      const data = await res.json();
+      const resData = await res.json();
+      const records = Array.isArray(resData) ? resData : (resData.history || []);
       const tbody = document.getElementById('personnel-history-table-body');
+      if (!tbody) return;
       tbody.innerHTML = '';
       
-      if (!data || data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">No recorded check-ins found.</td></tr>';
+      if (!records || records.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 1.25rem;">No recorded check-ins found.</td></tr>';
         return;
       }
 
-      data.forEach(r => {
+      records.forEach(r => {
         const tr = document.createElement('tr');
-        const timeStr = new Date(r.recorded_at).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        const d = new Date(r.recorded_at);
+        const timeStr = isNaN(d.getTime()) ? r.recorded_at : d.toLocaleString([], { 
+          month: 'short', 
+          day: 'numeric', 
+          hour: '2-digit', 
+          minute: '2-digit',
+          hour12: false 
+        });
         tr.innerHTML = `
-          <td>${timeStr}</td>
+          <td><strong style="color: #cbd5e1;">${timeStr}</strong></td>
           <td><span class="badge ${r.mood_score >= 6 ? 'badge-emerald' : 'badge-amber'}">${r.mood_score}/10</span></td>
           <td>${r.sleep_hours} hrs</td>
           <td><span class="badge ${r.stress_rating > 6 ? 'badge-crimson' : 'badge-neutral'}">${r.stress_rating}/10</span></td>
@@ -379,7 +388,9 @@ async function loadPersonnelHistory() {
         tbody.appendChild(tr);
       });
     }
-  } catch (e) {}
+  } catch (e) {
+    console.error('Failed to load personnel history:', e);
+  }
 }
 
 // ----------------------------------------------------
