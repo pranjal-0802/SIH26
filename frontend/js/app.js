@@ -698,11 +698,6 @@ window.loadCommanderData = async function(battalionCode = '104-CRPF') {
       document.getElementById('cmd-leave-deficit-val').textContent = `${m.personnel_leave_deficit_rate_pct}%`;
       document.getElementById('cmd-fatigue-val').textContent = `${m.circadian_fatigue_rate_pct}%`;
       document.getElementById('cmd-cohort-size').textContent = `Cohort: N=${data.cohort_size} (k>=5 Satisfied)`;
-      
-      const dpBudgetEl = document.getElementById('cmd-dp-budget');
-      if (dpBudgetEl) {
-        dpBudgetEl.textContent = `DP Budget: ${data.dp_daily_budget_remaining} ε remaining (${data.dp_budget_status})`;
-      }
 
       const dirList = document.getElementById('cmd-directives-list');
       dirList.innerHTML = '';
